@@ -435,19 +435,81 @@ pnpm dev --port 3000
 
 ---
 
-## Phase 2 Preview
+## Phase 1 Complete ✅
 
-**Next:** Modules 2–7 (Core Features / Deep Dive)
+**Status:** Foundation & App Shell Ready  
+**Date:** 2025-10-25  
+**Commit:** `feat(shell): app routes, nav, state scaffolds, sw register`
 
-After Phase 1 completion, Phase 2 will add:
-- Real-time chart integration
-- Technical analysis indicators
-- Journal entry system
-- Replay functionality
-- Data persistence
-- Advanced state management
+### Delivered
+- ✅ Guardrails & project policies active
+- ✅ App shell with Header + BottomNav
+- ✅ 3 pages: Analyze, Journal, Replay
+- ✅ 4-state pattern: empty, loading, error, result
+- ✅ PWA manifest + SW registration
+- ✅ Mobile-first layout (360px+)
+- ✅ All quality gates passing
+- ✅ Tests: 5/5 passing
+
+### Verified
+```bash
+✅ pnpm fmt        # Code formatted
+✅ pnpm lint       # No lint errors
+✅ pnpm typecheck  # TypeScript strict
+✅ pnpm build      # Bundle: 181.65 KB (57.76 KB gzipped)
+✅ pnpm test       # 5/5 tests passing
+```
+
+---
+
+## Phase 2 Next: Core Features / Deep Dive
+
+**Modules 2–7** will add:
+
+### Module 2: Chart Integration
+- Lightweight charting library (recharts or lightweight-charts)
+- Candlestick, line, and area charts
+- Zoom, pan, crosshair interactions
+- Real-time data updates
+
+### Module 3: Technical Indicators
+- RSI, MACD, Moving Averages
+- Bollinger Bands, Volume indicators
+- Indicator overlays and panels
+- Configurable parameters
+
+### Module 4: Symbol Search
+- Debounced search input
+- API integration for symbol lookup
+- Autocomplete with ticker + name
+- Recent searches cache
+
+### Module 5: Journal System
+- Create, edit, delete entries
+- Rich text editor (markdown)
+- Tags and categories
+- Search and filter
+
+### Module 6: Replay Engine
+- Historical data playback
+- Bar-by-bar progression
+- Prediction tracking
+- Win rate calculation
+
+### Module 7: Data Layer
+- IndexedDB for offline storage
+- API client with retry logic
+- Optimistic updates
+- Sync status indicators
 
 **Tracking:** See GitHub Issue "Phase 2 — Core Feature / Deep Dive"
+
+### Prerequisites
+Before starting Phase 2:
+1. Phase 1 complete (this document updated)
+2. All quality gates green
+3. App boots and navigates correctly
+4. Decision on charting library made
 
 ---
 
