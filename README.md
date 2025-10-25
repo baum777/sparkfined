@@ -49,11 +49,14 @@ The app will be available at `http://localhost:5173/`
 
 ```bash
 pnpm dev          # Start development server
-pnpm build        # Build for production
+pnpm build        # Build for production (includes typecheck)
 pnpm preview      # Preview production build
 pnpm lint         # Run ESLint
+pnpm fmt          # Format code with Prettier (shorthand)
 pnpm format       # Format code with Prettier
+pnpm typecheck    # Type-check without building
 pnpm test         # Run tests with Vitest
+pnpm test:watch   # Run tests in watch mode
 ```
 
 ## 📁 Project Structure
@@ -80,12 +83,19 @@ sparkfined-ta-pwa/
 
 ### Environment Variables
 
+Create a `.env` file from the template:
+
+```bash
+cp .env.example .env
+```
+
 See `.env.example` for all available environment variables:
 
 - `VITE_API_BASE_URL` - Base URL for API requests
-- `VITE_API_KEY` - API authentication key
-- `VITE_ENABLE_ANALYTICS` - Enable analytics tracking
-- `VITE_ENABLE_DEBUG` - Enable debug mode
+- `VITE_API_KEY` - API authentication key (required for production)
+- `VITE_ENABLE_ANALYTICS` - Enable analytics tracking (default: false)
+- `VITE_ENABLE_DEBUG` - Enable debug mode (default: false)
+- `VITE_ENABLE_OFFLINE_MODE` - Enable offline mode (default: true)
 
 ### Dark Mode
 
