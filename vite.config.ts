@@ -9,26 +9,24 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Sparkfined TA-PWA',
         short_name: 'Sparkfined',
         description: 'Technical Analysis Progressive Web App',
-        theme_color: '#0f172a',
-        background_color: '#020617',
+        theme_color: '#1e293b',
+        background_color: '#0f172a',
         display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
         start_url: '/',
         icons: [
           {
-            src: '/icon-192.png',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: '/icon-512.png',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
@@ -36,13 +34,64 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        // Runtime caching will be configured in Phase 4
-        runtimeCaching: []
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // Pre-cache app shell for instant offline access
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/],
+        runtimeCaching: [
+          // Dexscreener API - Stale-While-Revalidate for fast perceived performance
+          {
+            urlPattern: /^https:\/\/api\.dexscreener\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'dexscreener-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 86400, // 24 hours
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+              // Add cache timestamp for age checking
+              plugins: [
+                {
+                  cacheKeyWillBeUsed: async ({ request }) => {
+                    return request.url + '?t=' + Math.floor(Date.now() / 3600000)
+                  },
+                },
+              ],
+            },
+          },
+          // Other external APIs
+          {
+            urlPattern: /^https:\/\/api\.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 300, // 5 minutes
+              },
+            },
+          },
+          // CDN assets (fonts, icons, etc.)
+          {
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 31536000, // 1 year
+              },
+            },
+          },
+        ],
       },
       devOptions: {
-        enabled: false // Disable SW in dev for faster iteration
-      }
+        enabled: false, // Disable SW in dev for easier debugging
+      },
     })
   ],
   resolve: {

@@ -199,6 +199,135 @@ pnpm preview
 # Test at http://localhost:4173
 ```
 
+## 📴 Testing Offline Mode (Phase 4)
+
+### How to Test Offline Functionality
+
+**Method 1: Browser DevTools (Recommended)**
+1. Build production version: `pnpm build && pnpm preview`
+2. Open http://localhost:4173 in Chrome/Edge
+3. Open DevTools (F12) → **Network** tab
+4. Check **"Offline"** checkbox or select **"Offline"** from throttling dropdown
+5. Verify:
+   - ✅ App shell loads instantly
+   - ✅ Navigation works (Analyze/Journal/Replay)
+   - ✅ Cached Dexscreener data displays
+   - ✅ Orange "Offline Mode" badge appears at top
+   - ✅ No blank screens or error states
+
+**Method 2: Airplane Mode (Mobile Testing)**
+1. Deploy to test environment or use `pnpm preview` with ngrok/local network
+2. Open app on mobile device
+3. Enable Airplane Mode
+4. Navigate through app and verify offline resilience
+
+**Method 3: Service Worker Inspect**
+1. After build, navigate to `chrome://serviceworker-internals/`
+2. Locate `http://localhost:4173` registration
+3. Click **"Unregister"** → Reload → Verify re-registration
+4. Check **Console** for SW lifecycle logs:
+   ```
+   ✅ SW registered: /
+   📦 Cache updated: <url>
+   ```
+
+### Cache Behavior (Phase 4)
+- **App Shell**: Pre-cached on install (HTML/CSS/JS/icons)
+- **Dexscreener API**: Stale-While-Revalidate, 24h expiration
+- **Other APIs**: Network-First with 5s timeout, 5min cache
+- **Fonts/CDN**: Cache-First, 1 year expiration
+
+### Cache Invalidation
+- Automatic: 24h age check for Dexscreener data
+- Manual: Clear via DevTools → **Application** → **Storage** → **Clear site data**
+
+## 📊 Feedback & Metrics Export (Phase 4)
+
+### How to Use Telemetry & Feedback System
+
+**1. View Usage Metrics**
+- Click **📊** icon in header
+- See aggregated event counts:
+  - `drop_to_result`: Chart analysis completed
+  - `save_trade`: Trade saved to journal
+  - `open_replay`: Replay modal opened
+  - `export_share`: Data exported
+  - `screenshot_dropped`: Screenshot uploaded
+  - `demo_mode_activated`: Demo mode triggered
+
+**2. Submit Feedback**
+- Click **💬** icon in header
+- Select feedback type: Bug / Idea / Other
+- Write up to 140 characters
+- Feedback stored **locally** (no server upload)
+- Privacy: No PII collected, data stays on device
+
+**3. Export Data**
+- Open Metrics Panel (📊 icon)
+- Click **"Export JSON"** or **"Export CSV"**
+- File downloads with format: `sparkfined-feedback-YYYY-MM-DD.json`
+- Share with community, import into analysis tools, or keep as backup
+
+**4. Privacy Guarantees**
+- ✅ All data stored in **IndexedDB** (local device only)
+- ✅ **No tracking scripts**, no analytics SDKs
+- ✅ **No PII** (personally identifiable information) collected
+- ✅ **No server uploads** — data never leaves your device
+- ✅ Export JSON/CSV shows privacy note
+
+### Export File Structure
+
+**JSON Format:**
+```json
+{
+  "exportedAt": "2025-10-25T14:30:00.000Z",
+  "metrics": [
+    {
+      "eventType": "save_trade",
+      "count": 12,
+      "lastUpdated": "2025-10-25T14:29:45.000Z"
+    }
+  ],
+  "feedback": [
+    {
+      "type": "Idea",
+      "text": "Would love dark mode toggle on charts",
+      "timestamp": "2025-10-25T12:15:00.000Z",
+      "status": "exported"
+    }
+  ],
+  "privacyNote": "No PII collected - anonymous usage data only"
+}
+```
+
+**CSV Format:**
+```csv
+# Sparkfined TA-PWA - Metrics & Feedback Export
+# Exported at: 2025-10-25T14:30:00.000Z
+# Privacy: No PII collected - anonymous usage data only
+
+=== METRICS ===
+Event Type,Count,Last Updated
+save_trade,12,2025-10-25T14:29:45.000Z
+
+=== FEEDBACK ===
+Type,Text,Timestamp,Status
+Idea,"Would love dark mode toggle on charts",2025-10-25T12:15:00.000Z,exported
+```
+
+### Community Feedback Workflow
+1. **Collect**: Use app naturally, submit feedback as ideas arise
+2. **Export**: Monthly or when ready to share
+3. **Share**: Post JSON/CSV to GitHub Discussions or Discord
+4. **Aggregate**: Maintainers analyze trends for roadmap planning
+
+### Debug Panel (Developer Use)
+```javascript
+// Open browser console and run:
+const db = await indexedDB.open('sparkfined-ta-pwa', 2)
+// Inspect stores: metrics, feedback, events, trades
+```
+
 ## 📚 Documentation Updates
 
 ### When to Update Docs
