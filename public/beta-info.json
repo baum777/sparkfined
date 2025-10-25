@@ -1,0 +1,61 @@
+{
+  "project": "Sparkfined TA-PWA",
+  "version": "0.1.0-beta",
+  "status": "Beta Teaser (Wave 1)",
+  "tagline": "Drop. Analyze. Replay.",
+  "build": {
+    "timestamp": "2025-10-25T14:09:57Z",
+    "commit": "39bbba8f418f884308662ac187fab39ad76b6ee5",
+    "node": "22 LTS",
+    "bundler": "Vite 6.0"
+  },
+  "scope": {
+    "features": [
+      "📸 Screenshot drop for quick chart analysis",
+      "📊 S/R + Volatility detection (client-side)",
+      "📝 Trade journal with offline persistence",
+      "🎬 Replay mode with frame-by-frame control",
+      "💾 Export trades to JSON/CSV",
+      "🔒 Privacy-first: no tracking, local-only data",
+      "📶 Offline-ready PWA with service worker caching",
+      "💬 Anonymous feedback collection"
+    ],
+    "limitations": [
+      "🔧 Mock/demo data only (no live API integration yet)",
+      "⚠️ S/R detection is placeholder algorithm",
+      "🧪 Beta quality: expect rough edges",
+      "📱 Mobile-first design, desktop functional but not optimized"
+    ]
+  },
+  "tech_stack": {
+    "frontend": "React 18 + TypeScript 5.6",
+    "styling": "Tailwind CSS 3 + Dark Mode",
+    "storage": "IndexedDB (Dexie)",
+    "pwa": "vite-plugin-pwa + Workbox",
+    "routing": "React Router 6",
+    "build": "Vite 6.0",
+    "testing": "Vitest + Testing Library"
+  },
+  "community": {
+    "feedback": "Use the 💬 button in-app or export metrics via 📊",
+    "twitter": "#Sparkfined #Cryptober #Solana #DegenTools",
+    "discord": "Coming soon - watch for announcements",
+    "repository": "https://github.com/<USERNAME>/sparkfined-ta-pwa"
+  },
+  "privacy": {
+    "tracking": "None - no analytics SDKs",
+    "data_collection": "Anonymous event counters only (local storage)",
+    "data_sharing": "Never - data only leaves device via user-initiated export",
+    "pii": "None collected"
+  },
+  "roadmap": {
+    "next": [
+      "Alpha launch with live Dexscreener integration",
+      "Real S/R detection algorithm",
+      "Multi-chart comparison mode",
+      "Social sharing with privacy controls",
+      "Community-driven feature voting"
+    ]
+  },
+  "acknowledgments": "Built with ⚡ by Sparkfined team during Cryptober 2025"
+}
