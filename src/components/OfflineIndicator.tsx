@@ -29,8 +29,8 @@ export default function OfflineIndicator() {
   // Persistent offline badge (always visible when offline)
   if (!isOnline) {
     return (
-      <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-3 py-1.5 rounded-full bg-amber-500 dark:bg-amber-600 text-white text-xs font-medium shadow-lg flex items-center gap-1.5">
-        <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+      <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-md bg-brand/90 backdrop-blur-sm border border-brand text-white text-xs font-mono font-medium shadow-glow-brand flex items-center gap-2 animate-fade-in">
+        <span className="w-2 h-2 bg-white rounded-full animate-glow-pulse"></span>
         Offline Mode
       </div>
     )
@@ -39,8 +39,8 @@ export default function OfflineIndicator() {
   // Transient toast when going offline
   if (showOfflineToast) {
     return (
-      <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg bg-slate-800 dark:bg-slate-700 text-white text-sm shadow-xl animate-fade-in">
-        📴 You're offline - cached data will be used
+      <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-md bg-surface border border-border text-text-primary text-sm font-sans shadow-card-elevated animate-fade-in">
+        📴 You're offline — cached data available
       </div>
     )
   }

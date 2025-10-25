@@ -64,16 +64,22 @@ export default function ReplayPage() {
   if (sessions.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-12rem)] px-4">
-        <div className="text-center space-y-4">
-          <div className="text-6xl mb-4">🎬</div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Session Replay</h2>
-          <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-            No recorded sessions yet. Start using the app to capture your analysis journey.
-          </p>
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg max-w-md mx-auto">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Preview Mode:</strong> Static timeline viewer showing recorded user events.
-              Full scrubbing and playback coming soon!
+        <div className="text-center space-y-6 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-xl bg-surface border border-border-accent/20 mb-2">
+            <svg className="w-10 h-10 text-brand" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+            </svg>
+          </div>
+          <div className="space-y-3">
+            <h2 className="text-display-sm font-display font-bold text-text-primary">Session Replay</h2>
+            <p className="text-text-secondary max-w-md mx-auto leading-relaxed">
+              No recorded sessions yet. <span className="text-brand font-medium">Watch your analysis journey.</span>
+            </p>
+          </div>
+          <div className="mt-4 p-4 bg-brand/10 border border-brand/20 rounded-lg max-w-md mx-auto">
+            <p className="text-sm text-text-secondary">
+              <strong className="text-brand">Preview Mode:</strong> Static timeline viewer.
+              Full playback controls coming soon.
             </p>
           </div>
         </div>
@@ -86,37 +92,37 @@ export default function ReplayPage() {
       <div className="p-4 space-y-4 max-w-4xl mx-auto">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="text-display-sm font-display font-bold text-text-primary">
               Session Replay
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-sm text-text-secondary mt-1">
               Review your analysis sessions and learning moments
             </p>
           </div>
           <button
             onClick={loadSessions}
-            className="px-4 py-2 text-sm rounded-lg border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="btn-ghost text-sm"
           >
             🔄 Refresh
           </button>
         </div>
 
-        <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+        <div className="p-4 bg-brand/10 rounded-lg border border-brand/20">
           <div className="flex items-start gap-3">
             <span className="text-2xl">⚡</span>
             <div className="flex-1">
-              <h3 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">
+              <h3 className="font-display font-semibold text-brand mb-1">
                 Static Preview Mode
               </h3>
-              <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                This is a proof-of-concept timeline viewer. Full replay features (scrubbing, 
-                playback controls, chart snapshots) are planned for future phases.
+              <p className="text-sm text-text-secondary">
+                Proof-of-concept timeline viewer. Full replay features (scrubbing, 
+                playback controls, chart snapshots) coming in future phases.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        <div className="text-sm font-mono text-text-tertiary mb-4">
           {sessions.length} session{sessions.length !== 1 ? 's' : ''} recorded
         </div>
 
@@ -124,40 +130,40 @@ export default function ReplayPage() {
           {sessions.map((session) => (
             <div
               key={session.sessionId}
-              className="card hover:shadow-lg transition-shadow cursor-pointer"
+              className="card-interactive"
               onClick={() => openReplay(session.sessionId)}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">🎬</span>
                   <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                    <h3 className="font-display font-semibold text-text-primary">
                       Session
                     </h3>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                    <div className="text-xs text-text-tertiary font-mono">
                       {session.sessionId.slice(0, 20)}...
                     </div>
                   </div>
                 </div>
-                <span className="px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                <span className="px-2 py-1 text-xs font-mono rounded-md border bg-cyan/10 border-cyan text-cyan">
                   {session.count} events
                 </span>
               </div>
 
-              <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+              <div className="space-y-2 text-sm font-mono text-text-secondary">
                 <div className="flex justify-between">
-                  <span>Started:</span>
-                  <span className="font-medium">{formatDate(session.firstEvent)}</span>
+                  <span>Started</span>
+                  <span className="font-medium text-text-primary">{formatDate(session.firstEvent)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Duration:</span>
-                  <span className="font-medium">
+                  <span>Duration</span>
+                  <span className="font-medium text-text-primary">
                     {formatDuration(session.firstEvent, session.lastEvent)}
                   </span>
                 </div>
               </div>
 
-              <button className="w-full mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors">
+              <button className="btn-primary w-full mt-4">
                 Watch Replay →
               </button>
             </div>

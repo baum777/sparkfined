@@ -106,14 +106,20 @@ export default function JournalPage() {
     return (
       <>
         <div className="flex items-center justify-center min-h-[calc(100vh-12rem)] px-4">
-          <div className="text-center space-y-4">
-            <div className="text-6xl mb-4">📝</div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              Trading Journal
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-              No entries yet. Start documenting your trades and insights.
-            </p>
+          <div className="text-center space-y-6 animate-fade-in">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-xl bg-surface border border-border-accent/20 mb-2">
+              <svg className="w-10 h-10 text-cyan" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-display-sm font-display font-bold text-text-primary">
+                Trading Journal
+              </h2>
+              <p className="text-text-secondary max-w-md mx-auto leading-relaxed">
+                Document your tape reads. <span className="text-cyan font-medium">Track the insights.</span>
+              </p>
+            </div>
             <button onClick={() => setIsModalOpen(true)} className="btn-primary mt-4">
               Create First Entry
             </button>
@@ -133,14 +139,14 @@ export default function JournalPage() {
       <div className="p-4 space-y-4 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Trade Journal</h2>
+          <h2 className="text-display-sm font-display font-bold text-text-primary">Trade Journal</h2>
           <div className="flex gap-2">
             <button
               onClick={handleExportCSV}
-              className="px-4 py-2 text-sm rounded-lg border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="btn-ghost text-sm"
               disabled={filteredTrades.length === 0}
             >
-              📊 Export CSV
+              📊 Export
             </button>
             <button onClick={() => setIsModalOpen(true)} className="btn-primary text-sm">
               + New Entry
@@ -155,12 +161,12 @@ export default function JournalPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search token or notes..."
-            className="flex-1 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input flex-1"
           />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
-            className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input"
           >
             <option>All</option>
             <option>Taken</option>
@@ -169,7 +175,7 @@ export default function JournalPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -177,33 +183,33 @@ export default function JournalPage() {
         </div>
 
         {/* Results count */}
-        <div className="text-sm text-slate-600 dark:text-slate-400">
+        <div className="text-sm font-mono text-text-tertiary">
           Showing {filteredTrades.length} of {trades.length} entries
         </div>
 
         {/* Grid of trades */}
         {filteredTrades.length === 0 ? (
-          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+          <div className="text-center py-12 text-text-tertiary">
             No trades match your filters
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTrades.map((trade) => (
-              <div key={trade.id} className="card hover:shadow-lg transition-shadow">
+              <div key={trade.id} className="card-interactive">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">
+                    <h3 className="font-display font-bold text-lg text-text-primary">
                       {trade.token}
                     </h3>
-                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                    <div className="text-sm font-mono text-text-mono">
                       ${formatPrice(trade.price)}
                     </div>
                   </div>
                   <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    className={`px-2 py-1 text-xs font-mono font-medium rounded-md border ${
                       trade.status === 'Taken'
-                        ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                        : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                        ? 'bg-accent/10 border-accent text-accent'
+                        : 'bg-cyan/10 border-cyan text-cyan'
                     }`}
                   >
                     {trade.status}
@@ -211,23 +217,23 @@ export default function JournalPage() {
                 </div>
 
                 {trade.notes && (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-3">
+                  <p className="text-sm text-text-secondary mb-3 line-clamp-3 leading-relaxed">
                     {trade.notes}
                   </p>
                 )}
 
-                <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between items-center text-xs font-mono text-text-tertiary mt-4 pt-3 border-t border-border-subtle">
                   <span>{formatDate(trade.timestamp)}</span>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => openReplay(`session_${trade.createdAt}`)}
-                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                      className="text-cyan hover:text-text-primary transition-colors duration-180"
                     >
                       🎬 Replay
                     </button>
                     <button
                       onClick={() => handleDeleteTrade(trade.id!)}
-                      className="text-red-600 dark:text-red-400 hover:underline"
+                      className="text-bear hover:text-text-primary transition-colors duration-180"
                     >
                       Delete
                     </button>
