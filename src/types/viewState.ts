@@ -1,7 +1,6 @@
 export type ViewState = 'empty' | 'loading' | 'error' | 'result'
 
-export interface ViewStateProps<T> {
+export interface ViewStateProps {
   state: ViewState
-  data?: T
-  error?: Error | string
+  error?: string
 }

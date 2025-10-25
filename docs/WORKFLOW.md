@@ -1,527 +1,267 @@
-# Development Workflow
+# Development Workflow — Sparkfined TA-PWA
 
-Guide for human developers and AI agents working on Sparkfined TA-PWA.
+## 🎯 Overview
+This document describes the development workflow for **human developers** and **AI agents** working on Sparkfined TA-PWA.
 
----
+## 🧑‍💻 Human Developer Workflow
 
-## Quick Reference
+### Daily Development Loop
+```bash
+# 1. Pull latest changes
+git pull origin main
 
-### Quality Gates (Before Every Commit)
+# 2. Create feature branch
+git checkout -b feat/your-feature
+
+# 3. Code → Test → Commit cycle
+pnpm dev              # Start dev server (http://localhost:5173)
+# ... make changes ...
+pnpm fmt              # Format code
+pnpm lint             # Check for errors
+pnpm typecheck        # TypeScript validation
+pnpm test             # Run tests
+
+# 4. Commit with conventional format
+git add .
+git commit -m "feat(scope): description"
+
+# 5. Push and open PR
+git push origin feat/your-feature
+```
+
+### Quality Gates (Run Before Every Commit)
 ```bash
 pnpm fmt && pnpm lint && pnpm typecheck && pnpm build
 ```
+**All must pass ✅ — no exceptions.**
 
-### Branch → Commit → PR Flow
-```bash
-git checkout -b feat/my-feature
-# ... make changes ...
-pnpm check  # Runs all quality gates
-git add -A
-git commit -m "feat(scope): description"
-git push origin feat/my-feature
-# Create PR on GitHub
+### Code Review Checklist
+- [ ] Diff is focused (< 200 lines preferred)
+- [ ] Tests pass locally
+- [ ] Mobile responsive (360–414px tested)
+- [ ] Dark mode works
+- [ ] No console errors
+- [ ] Accessibility: keyboard + screen reader tested
+- [ ] Documentation updated
+
+## 🤖 AI Agent Workflow (Cursor/Claude)
+
+### Interaction Modes
+
+#### **1. Ask Mode** (No Code Changes)
+*Use when:* User asks questions, needs explanations, or wants suggestions.
+
+```
+User: "How does the chart analysis work?"
+Agent: [Explains with code references, no edits]
 ```
 
----
+#### **2. Edit Mode** (Code Changes)
+*Use when:* User requests implementation, fixes, or refactors.
 
-## Agent Modes: Ask vs Edit vs PR
-
-### 1. Ask Mode (Planning)
-**When:** Understanding requirements, clarifying scope, exploring options
-
-**Agent:** 
-- Read existing code
-- Ask clarifying questions
-- Propose solutions
-- Estimate impact
-
-**Human:**
-- Provide context
-- Make decisions
-- Approve direction
+**Process:**
+1. **Read** relevant files first
+2. **Plan** changes (explain approach)
+3. **Execute** using `MultiStrReplace` or `Write` tools
+4. **Verify** with quality checks:
+   ```bash
+   pnpm fmt && pnpm lint && pnpm typecheck
+   ```
+5. **Summarize** what was changed and why
 
 **Example:**
 ```
-Human: "We need to add RSI indicator support"
-Agent: "Should RSI be:
-  1. Real-time calculated or cached?
-  2. Configurable period (default 14)?
-  3. Shown as overlay or separate panel?"
+User: "Add a loading spinner to the chart component"
+
+Agent:
+1. Read Chart.tsx
+2. Plan: Add LoadingSpinner component, show during data fetch
+3. Execute edits (imports, state, conditional render)
+4. Run: pnpm fmt && pnpm lint && pnpm typecheck ✅
+5. Summary: "Added spinner that appears while chart data loads"
 ```
 
-### 2. Edit Mode (Implementation)
-**When:** Making focused code changes
+#### **3. PR Mode** (Pull Request Creation)
+*Use when:* User asks to commit/push changes.
 
-**Agent:**
-- Plan → Diff → Review workflow
-- Small diffs (< 200 lines per file)
-- Follow existing patterns
-- Update related docs
+**Process:**
+1. Review all changes (`git status`, `git diff`)
+2. Stage relevant files
+3. Create conventional commit:
+   ```bash
+   git commit -m "feat(analyze): add chart loading spinner"
+   ```
+4. Push to branch
+5. Generate PR description with:
+   - Summary of changes
+   - Test plan
+   - Screenshots (if UI)
 
-**Human:**
-- Review diffs
-- Test changes locally
-- Approve or request changes
+### Agent Best Practices
 
-**Example:**
+#### DO ✅
+- **Small diffs**: One logical change at a time
+- **Read first**: Always check existing code before editing
+- **Run checks**: Execute `pnpm fmt && pnpm lint && pnpm typecheck` after edits
+- **Update tests**: Modify tests when changing APIs
+- **Ask questions**: Clarify ambiguous requirements
+
+#### DON'T ❌
+- **Skip types**: Never use `any`, always type properly
+- **Ignore errors**: Fix linter/TS errors immediately
+- **Make unrelated changes**: Stay focused on the task
+- **Assume**: Ask if requirements are unclear
+
+### Debugging Failed Quality Checks
+
+#### ESLint Errors
 ```bash
-# Agent makes changes
-# Agent runs: pnpm check
-# Agent commits: feat(indicators): add RSI calculation
-# Human reviews and approves
-```
-
-### 3. PR Mode (Integration)
-**When:** Ready to merge feature into main branch
-
-**Agent:**
-- Create PR with clear description
-- Link related issues
-- Add screenshots (UI changes)
-- Note breaking changes
-
-**Human:**
-- Review PR
-- Test on staging
-- Approve and merge
-
----
-
-## Workflow Patterns
-
-### Pattern 1: New Feature
-```
-1. Ask → Clarify requirements
-2. Edit → Implement in feat/* branch
-3. Edit → Add tests
-4. Edit → Update docs
-5. PR → Review and merge
-```
-
-### Pattern 2: Bug Fix
-```
-1. Ask → Reproduce and diagnose
-2. Edit → Fix in fix/* branch
-3. Edit → Add regression test
-4. PR → Fast-track review
-```
-
-### Pattern 3: Refactoring
-```
-1. Ask → Propose refactor plan
-2. Ask → Get approval (breaking changes?)
-3. Edit → Small, incremental changes
-4. Edit → Ensure tests still pass
-5. PR → Detailed review
-```
-
-### Pattern 4: Documentation
-```
-1. Edit → Update docs directly
-2. Commit → docs: description
-3. PR → Quick review (typos, accuracy)
-```
-
----
-
-## AI Agent Guidelines
-
-### Before Making Changes
-
-**Read First:**
-```bash
-# Understand the codebase
-cat src/pages/AnalyzePage.tsx
-cat src/components/Header.tsx
-cat docs/PROJECT_STRUCTURE.md
-```
-
-**Check Patterns:**
-- How are other components structured?
-- What's the existing state management pattern?
-- Are there similar features to reference?
-
-### During Changes
-
-**Keep Diffs Small:**
-- Max 200 lines per file
-- Max 5 files per commit
-- Extract separate commits if larger
-
-**Follow Conventions:**
-```typescript
-// Good: Follows existing patterns
-import { useState } from 'react'
-import Button from '@/components/Button'
-import type { ChartData } from '@/types'
-
-export default function AnalyzePage() {
-  const [data, setData] = useState<ChartData | null>(null)
-  // ...
-}
-
-// Avoid: Mixing styles
-const AnalyzePage = () => {
-  let data: any
-  // ...
-}
-```
-
-**Update Related Files:**
-- Component → Test
-- Public API → Documentation
-- New route → Navigation links
-
-### After Changes
-
-**Quality Gates:**
-```bash
-pnpm fmt        # ✓ Formatting
-pnpm lint       # ✓ Linting
-pnpm typecheck  # ✓ Type safety
-pnpm build      # ✓ Build succeeds
-pnpm test       # ✓ Tests pass
-```
-
-**Commit Message:**
-```bash
-git commit -m "feat(analyze): add symbol search autocomplete
-
-- Implement debounced search input
-- Add API integration for symbol lookup
-- Display results with ticker + name
-- Handle loading and error states
-
-Closes #42"
-```
-
----
-
-## Human Developer Guidelines
-
-### Starting Work
-
-```bash
-# Get latest code
-git checkout main
-git pull origin main
-
-# Create feature branch
-git checkout -b feat/symbol-search
-
-# Ensure clean slate
-pnpm install
-pnpm check
-```
-
-### During Development
-
-**Incremental Testing:**
-```bash
-# Keep dev server running
-pnpm dev
-
-# Keep tests running (separate terminal)
-pnpm test:watch
-
-# Manual testing in browser
-# http://localhost:5173/
-```
-
-**Frequent Checks:**
-```bash
-# Quick check (every few changes)
-pnpm typecheck
-
-# Full check (before commit)
-pnpm check
-```
-
-### Before Committing
-
-**Self-Review Checklist:**
-- [ ] Code follows project patterns
-- [ ] No TypeScript errors
-- [ ] No console.log() left behind
-- [ ] Tests added/updated
-- [ ] Docs updated (if needed)
-- [ ] Commit message follows convention
-
-**Final Verification:**
-```bash
-pnpm check  # All quality gates
-git status  # Review staged files
-git diff    # Review exact changes
-```
-
----
-
-## Common Workflows
-
-### Adding a New Component
-
-```bash
-# 1. Create files
-touch src/components/SymbolSearch.tsx
-touch src/components/__tests__/SymbolSearch.test.tsx
-
-# 2. Implement component (use existing patterns)
-# - Default export for component
-# - TypeScript props interface
-# - Mobile-first responsive design
-
-# 3. Add tests
-# - Basic render test
-# - User interaction tests
-# - Error state tests
-
-# 4. Verify
-pnpm check
-
-# 5. Commit
-git add src/components/
-git commit -m "feat(components): add SymbolSearch component"
-```
-
-### Adding a New Route
-
-```bash
-# 1. Create page component
-touch src/pages/SettingsPage.tsx
-
-# 2. Add route in App.tsx
-# <Route path="/settings" element={<SettingsPage />} />
-
-# 3. Add navigation link (if needed)
-# Update Header or BottomNav
-
-# 4. Test navigation
-pnpm dev  # Navigate to /settings
-
-# 5. Verify
-pnpm check
-
-# 6. Commit
-git commit -m "feat(routes): add settings page"
-```
-
-### Updating Dependencies
-
-```bash
-# Check for updates
-pnpm outdated
-
-# Update specific package
-pnpm update <package-name>
-
-# Verify everything still works
-pnpm check
-
-# Commit
-git commit -m "chore(deps): update <package-name> to vX.Y.Z"
-```
-
-### Fixing a Bug
-
-```bash
-# 1. Create fix branch
-git checkout -b fix/rsi-calculation-error
-
-# 2. Add failing test (reproduce bug)
-# Edit src/lib/__tests__/indicators.test.ts
-
-# 3. Fix the bug
-# Edit src/lib/indicators.ts
-
-# 4. Verify test now passes
-pnpm test
-
-# 5. Full check
-pnpm check
-
-# 6. Commit
-git commit -m "fix(indicators): correct RSI calculation for edge cases
-
-- Handle NaN when price changes are zero
-- Add test for flat price periods
-
-Fixes #123"
-```
-
----
-
-## Performance Testing
-
-### Local Performance Check
-
-```bash
-# Build production bundle
-pnpm build
-
-# Check bundle sizes
-ls -lh dist/assets/
-
-# Preview production build
-pnpm preview
-
-# Test with Chrome DevTools:
-# 1. Open DevTools → Performance
-# 2. Throttle: Fast 3G
-# 3. Record page load
-# 4. Verify < 400ms initial render
-```
-
-### Mobile Testing
-
-```bash
-# Start dev server
-pnpm dev
-
-# Open DevTools → Toggle device toolbar
-# Test devices:
-# - iPhone SE (375px width)
-# - Pixel 5 (393px width)
-# - iPad (768px width)
-
-# Verify:
-# - Touch targets ≥ 44px
-# - Thumb-reach zones
-# - Safe area insets
-```
-
----
-
-## Troubleshooting
-
-### Build Fails
-
-```bash
-# Clean and reinstall
-rm -rf node_modules dist
-pnpm install
-
-# Check for type errors
-pnpm typecheck
-
-# Check for lint errors
 pnpm lint
+# Read error messages, fix issues, re-run
 ```
 
-### Tests Fail
-
+#### TypeScript Errors
 ```bash
-# Run tests with verbose output
-pnpm test --reporter=verbose
-
-# Run specific test file
-pnpm test SymbolSearch
-
-# Debug in watch mode
-pnpm test:watch
+pnpm typecheck
+# Address type mismatches, add missing types
 ```
 
-### Dev Server Issues
-
+#### Build Failures
 ```bash
-# Kill process on port 5173
-lsof -ti:5173 | xargs kill -9
-
-# Restart dev server
-pnpm dev
-
-# Try different port
-pnpm dev --port 3000
+pnpm build
+# Check for import errors, missing dependencies
 ```
 
----
+## 📁 File Organization
 
-## Phase 1 Complete ✅
+### Where to Add New Code
 
-**Status:** Foundation & App Shell Ready  
-**Date:** 2025-10-25  
-**Commit:** `feat(shell): app routes, nav, state scaffolds, sw register`
+| Type | Location | Example |
+|------|----------|---------|
+| UI Components | `src/components/` | `ChartUpload.tsx` |
+| Pages/Routes | `src/pages/` | `JournalPage.tsx` |
+| Custom Hooks | `src/hooks/` | `useChartData.ts` |
+| Utilities | `src/lib/` | `chartParser.ts` |
+| Types | `src/types/` | `chart.types.ts` |
+| Global Styles | `src/styles/` | `App.css` |
+| Tests | `src/**/__tests__/` | `ChartUpload.test.tsx` |
 
-### Delivered
-- ✅ Guardrails & project policies active
-- ✅ App shell with Header + BottomNav
-- ✅ 3 pages: Analyze, Journal, Replay
-- ✅ 4-state pattern: empty, loading, error, result
-- ✅ PWA manifest + SW registration
-- ✅ Mobile-first layout (360px+)
-- ✅ All quality gates passing
-- ✅ Tests: 5/5 passing
+### Naming Conventions
+- **Components**: PascalCase (`ChartUpload.tsx`)
+- **Hooks**: camelCase with `use` prefix (`useChartData.ts`)
+- **Utils**: camelCase (`parseChartData.ts`)
+- **Types**: PascalCase interfaces (`ChartData`)
+- **Constants**: UPPER_SNAKE_CASE (`API_BASE_URL`)
 
-### Verified
+## 🧪 Testing Strategy
+
+### Test Pyramid
+```
+       /\
+      /E2E\        ← Manual smoke tests
+     /______\
+    /  Unit  \     ← Vitest tests (80% coverage goal)
+   /__________\
+```
+
+### When to Write Tests
+- **Always**: Critical logic (data parsing, validation)
+- **Often**: Reusable components, hooks
+- **Sometimes**: Simple presentational components
+- **Never**: Trivial wrappers, one-off scripts
+
+### Running Tests
 ```bash
-✅ pnpm fmt        # Code formatted
-✅ pnpm lint       # No lint errors
-✅ pnpm typecheck  # TypeScript strict
-✅ pnpm build      # Bundle: 181.65 KB (57.76 KB gzipped)
-✅ pnpm test       # 5/5 tests passing
+pnpm test              # Run all tests once
+pnpm test:watch        # Watch mode for TDD
+pnpm test -- Chart     # Run tests matching "Chart"
 ```
 
----
+## 🚀 Deployment Workflow
 
-## Phase 2 Next: Core Features / Deep Dive
+### Production Checklist
+- [ ] All tests pass
+- [ ] `pnpm build` succeeds
+- [ ] Lighthouse score > 90 (Performance, A11y, PWA)
+- [ ] Service worker registers correctly
+- [ ] Offline mode functional
+- [ ] Environment variables configured
 
-**Modules 2–7** will add:
+### Build Command
+```bash
+pnpm build
+# Output: dist/ folder ready for deployment
+```
 
-### Module 2: Chart Integration
-- Lightweight charting library (recharts or lightweight-charts)
-- Candlestick, line, and area charts
-- Zoom, pan, crosshair interactions
-- Real-time data updates
+### Preview Production Build
+```bash
+pnpm preview
+# Test at http://localhost:4173
+```
 
-### Module 3: Technical Indicators
-- RSI, MACD, Moving Averages
-- Bollinger Bands, Volume indicators
-- Indicator overlays and panels
-- Configurable parameters
+## 📚 Documentation Updates
 
-### Module 4: Symbol Search
-- Debounced search input
-- API integration for symbol lookup
-- Autocomplete with ticker + name
-- Recent searches cache
+### When to Update Docs
+| Change Type | Update |
+|-------------|--------|
+| New feature | `README.md`, inline comments |
+| Config change | `docs/SETUP.md`, `.env.example` |
+| Architecture decision | `docs/WORKFLOW.md`, ADR file |
+| API change | Inline JSDoc, type definitions |
 
-### Module 5: Journal System
-- Create, edit, delete entries
-- Rich text editor (markdown)
-- Tags and categories
-- Search and filter
+## 🔄 Phase Transitions
 
-### Module 6: Replay Engine
-- Historical data playback
-- Bar-by-bar progression
-- Prediction tracking
-- Win rate calculation
+### Current Phase: **Phase 1 — Guardrails & App Shell**
+**Goal:** Establish foundation, navigation structure, state scaffolds.
 
-### Module 7: Data Layer
-- IndexedDB for offline storage
-- API client with retry logic
-- Optimistic updates
-- Sync status indicators
+**Next Phase:** Phase 2 — Core Feature / Deep Dive (Modules 2–7)
+- Chart analysis engine
+- Journal storage
+- Replay system
+- API integration
 
-**Tracking:** See GitHub Issue "Phase 2 — Core Feature / Deep Dive"
-
-### Prerequisites
-Before starting Phase 2:
-1. Phase 1 complete (this document updated)
-2. All quality gates green
-3. App boots and navigates correctly
-4. Decision on charting library made
-
----
-
-## Resources
-
-- **Guardrails:** `.cursor/rules/00-guardrails.md`
-- **Contributing:** `CONTRIBUTING.md`
-- **Setup:** `docs/SETUP.md`
-- **Structure:** `docs/PROJECT_STRUCTURE.md`
-- **Roadmap:** `docs/ROADMAP.md`
+### Phase Completion Checklist
+- [ ] All module acceptance criteria met
+- [ ] Documentation updated
+- [ ] Tests passing
+- [ ] No linter errors
+- [ ] Branch merged to main
+- [ ] Issue tracking updated
 
 ---
 
 **Last Updated:** 2025-10-25  
-**Maintained by:** Sparkfined Team
+**Current Status:** ✅ Phase 1 Complete — Ready for Phase 2
+
+## Phase 2 Readiness
+
+**Phase 1 Achievements:**
+- ✅ Guardrails & project policies established
+- ✅ Lint/format/typecheck/build pipeline green
+- ✅ App shell with 3 navigable routes
+- ✅ Header + BottomNav mobile-first responsive
+- ✅ 4-state pattern (empty/loading/error/result) on all pages
+- ✅ PWA manifest & SW registration configured
+- ✅ Bundle size: 56.53 KB gzipped (under budget)
+
+**Next: Phase 2 — Core Feature / Deep Dive (Modules 2–7)**
+- Module 2: Chart analysis engine
+- Module 3: Journal storage & persistence
+- Module 4: Replay system mechanics
+- Module 5: API integration layer
+- Module 6: Advanced state management
+- Module 7: Performance optimization & testing
+
+**How to Start Phase 2:**
+```bash
+# Verify current state
+pnpm fmt && pnpm lint && pnpm typecheck && pnpm build
+
+# Start dev server
+pnpm dev
+
+# Navigate to http://localhost:5173 and test:
+# - Analyze page (/, chart upload placeholder)
+# - Journal page (/journal, entries list)
+# - Replay page (/replay, playback controls)
+```
