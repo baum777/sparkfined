@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import SaveTradeModal from '@/components/SaveTradeModal'
 import ReplayModal from '@/components/ReplayModal'
 import { getAllTrades, deleteTrade, exportTradesToCSV, downloadCSV, initDB } from '@/lib/db'
@@ -16,15 +16,7 @@ export default function JournalPage() {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest')
   const { log } = useEventLogger()
 
-  useEffect(() => {
-    initDB().then(loadTrades)
-  }, [])
-
-  useEffect(() => {
-    applyFilters()
-  }, [trades, searchQuery, filterStatus, sortBy])
-
-  const loadTrades = async () => {
+  const loadTrades = useCallback(async () => {
     try {
       const allTrades = await getAllTrades()
       setTrades(allTrades)
@@ -32,9 +24,9 @@ export default function JournalPage() {
     } catch (error) {
       console.error('Failed to load trades:', error)
     }
-  }
+  }, [log])
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...trades]
 
     // Filter by search query
@@ -57,7 +49,15 @@ export default function JournalPage() {
     })
 
     setFilteredTrades(filtered)
-  }
+  }, [trades, searchQuery, filterStatus, sortBy])
+
+  useEffect(() => {
+    initDB().then(loadTrades)
+  }, [loadTrades])
+
+  useEffect(() => {
+    applyFilters()
+  }, [applyFilters])
 
   const handleDeleteTrade = async (id: number) => {
     if (!confirm('Are you sure you want to delete this trade entry?')) return
