@@ -4,11 +4,18 @@ import App from './App.tsx'
 import './styles/index.css'
 
 // Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
+// Note: SW registration is handled by vite-plugin-pwa in production builds
+// In development, SW is disabled for faster iteration (see vite.config.ts)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      // Service worker registration handled by vite-plugin-pwa
-    })
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((registration) => {
+        console.log('SW registered:', registration.scope)
+      })
+      .catch((error) => {
+        console.log('SW registration failed:', error)
+      })
   })
 }
 

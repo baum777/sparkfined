@@ -1,15 +1,20 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import HomePage from './pages/HomePage'
+import Layout from './components/layout/Layout'
+import AnalyzePage from './pages/AnalyzePage'
+import JournalPage from './pages/JournalPage'
+import ReplayPage from './pages/ReplayPage'
 import './styles/App.css'
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <Layout>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<AnalyzePage />} />
+          <Route path="/journal" element={<JournalPage />} />
+          <Route path="/replay" element={<ReplayPage />} />
         </Routes>
-      </div>
+      </Layout>
     </Router>
   )
 }
