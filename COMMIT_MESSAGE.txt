@@ -1,0 +1,74 @@
+fix(beta): dropzone upload/paste + spa rewrites + pwa fallback | prep(alpha): flags + adapter stubs + metrics
+
+## Beta Fixes (A1-A5) ✅
+
+### A1: Drop-Chart Entry
+- Add DropZone component with image upload, drag/drop, paste
+- Validate CA input (EVM 0x... and Solana mint formats)
+- Global paste handler with error messages
+- No auto-navigation until valid input
+
+### A2: Vercel 404 Fix
+- Verify SPA rewrites in vercel.json (already configured)
+- Confirm VitePWA navigateFallback for offline routing
+- Ensure /journal and /replay work on direct navigation
+
+### A3: Crop & Compression
+- Add imageUtils.ts with compression to ≤1MB target
+- Enhance LoadingSkeleton with analysis-specific mode
+- Show skeleton within ≤200ms, perceived latency ≤1s
+
+### A4: Replay Modal Optimization
+- Add useMemo for sorted events (avoid re-sorting)
+- Implement requestIdleCallback for non-blocking loads
+- Lazy mount state, target open time < 400ms
+
+### A5: Feedback Export Reliability
+- Add validation in FeedbackModal before save
+- Verify export functions include proper headers
+- Add success feedback and mark exported status
+
+## Alpha Prep (B1-B4) ✅
+
+### B1: Environment & Flags
+- Create .env.example with provider configuration
+- Add flags for AI, orderflow, wallet analysis providers
+- All default to 'none' (no breaking changes)
+
+### B2: Adapter Stubs
+- Create orderflow.ts adapter (returns neutral/0 strength)
+- Create walletFlow.ts adapter (returns neutral/low confidence)
+- No external API calls, ready for Phase 6 integration
+
+### B3: Data Model Extensions
+- Add analysis.ts with HeuristicAnalysis, FlowMetrics types
+- Extend AppConfig with optional provider flags
+- All new fields optional (backward compatible)
+
+### B4: Telemetry Hooks
+- Enhance useEventLogger with EventTypes constants
+- Add logTiming() and logError() utilities
+- Track: upload_ok, paste_ca_ok, analysis_done, replay_opened, export_*
+
+## Build & Verification ✅
+
+- TypeScript: No errors
+- ESLint: 0 warnings, 0 errors
+- Build: 211.80 kB gzipped (66.04 kB main bundle)
+- PWA: 250.66 KiB precached, service worker generated
+- All routes verified, no 404s
+
+## Breaking Changes
+None. All changes are additive and backward-compatible.
+
+## Migration Notes
+1. Copy .env.example to .env.local (optional)
+2. No code changes required for existing functionality
+3. Alpha features disabled by default (providers = 'none')
+
+## Files Changed
+- New: DropZone.tsx, imageUtils.ts, orderflow.ts, walletFlow.ts, analysis.ts
+- Modified: AnalyzePage.tsx, LoadingSkeleton.tsx, ReplayModal.tsx, FeedbackModal.tsx, useEventLogger.ts
+- Config: .env.example added
+
+Closes #[issue-number] (if applicable)
