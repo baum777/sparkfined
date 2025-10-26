@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [
     react(),
     VitePWA({
@@ -36,7 +36,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         // Pre-cache app shell for instant offline access
-        navigateFallback: 'index.html',
+        navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           // Dexscreener API - Stale-While-Revalidate for fast perceived performance
@@ -52,14 +52,6 @@ export default defineConfig({
               cacheableResponse: {
                 statuses: [0, 200],
               },
-              // Add cache timestamp for age checking
-              plugins: [
-                {
-                  cacheKeyWillBeUsed: async ({ request }) => {
-                    return request.url + '?t=' + Math.floor(Date.now() / 3600000)
-                  },
-                },
-              ],
             },
           },
           // Other external APIs
@@ -96,7 +88,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': '/src'
     }
   },
   server: {
@@ -107,5 +99,8 @@ export default defineConfig({
         changeOrigin: true
       }
     }
+  },
+  build: {
+    outDir: 'dist'
   }
 })
