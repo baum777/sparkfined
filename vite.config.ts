@@ -17,14 +17,6 @@ export default defineConfig({
         theme_color: '#1e293b',
         background_color: '#0f172a',
         display: 'standalone',
-<<<<<<< HEAD
-<<<<<<< HEAD
-        orientation: 'portrait',
-        scope: '/',
-=======
->>>>>>> origin/pr/5
-=======
->>>>>>> origin/pr/8
         start_url: '/',
         icons: [
           {
@@ -42,24 +34,11 @@ export default defineConfig({
         ]
       },
       workbox: {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        // Runtime caching will be configured in Phase 4
-        runtimeCaching: []
-      },
-      devOptions: {
-        enabled: false // Disable SW in dev for faster iteration
-      }
-=======
-=======
->>>>>>> origin/pr/8
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        // Pre-cache app shell for instant offline access
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
-          // Dexscreener API - Stale-While-Revalidate for fast perceived performance
+          // Dexscreener API - Stale-While-Revalidate
           {
             urlPattern: /^https:\/\/api\.dexscreener\.com\/.*/i,
             handler: 'StaleWhileRevalidate',
@@ -74,7 +53,7 @@ export default defineConfig({
               },
             },
           },
-          // Other external APIs
+          // Other APIs
           {
             urlPattern: /^https:\/\/api\.*/i,
             handler: 'NetworkFirst',
@@ -87,7 +66,7 @@ export default defineConfig({
               },
             },
           },
-          // CDN assets (fonts, icons, etc.)
+          // CDN assets
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
@@ -102,12 +81,8 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: false, // Disable SW in dev for easier debugging
+        enabled: false, // Disable SW in dev
       },
-<<<<<<< HEAD
->>>>>>> origin/pr/5
-=======
->>>>>>> origin/pr/8
     })
   ],
   resolve: {
