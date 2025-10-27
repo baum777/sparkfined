@@ -4,8 +4,13 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-blue)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-blue)](https://vitejs.dev/)
+[![Beta](https://img.shields.io/badge/Status-Beta-green)](docs/CHANGELOG.md)
 
-**Technical Analysis Progressive Web App** - A lightweight, modular PWA for financial technical analysis built with modern web technologies.
+**Drop. Analyze. Replay.** 🎯
+
+A mobile-first, offline-ready Progressive Web App for crypto chart analysis. Drop a screenshot, get instant S/R levels and volatility insights, save trades to your journal, and replay market moments—all without tracking or backends.
+
+> 🚀 **Beta Teaser (Wave 1)** is now live! [Try the demo](#) • [Read the changelog](docs/CHANGELOG.md)
 
 ## 🚀 Stack
 
@@ -135,12 +140,39 @@ pnpm test        # Run all tests
 pnpm test:watch  # Run tests in watch mode
 ```
 
+## ✨ Features (Beta v0.1)
+
+- **📸 Screenshot Drop Analysis** - Drag & drop chart screenshots for instant analysis
+- **📊 S/R + Volatility Detection** - Client-side technical analysis (placeholder algorithm)
+- **📝 Trade Journal** - Offline-first storage with JSON/CSV export
+- **🎬 Replay Mode** - Frame-by-frame chart replay with time controls
+- **💬 Privacy-First Feedback** - Anonymous telemetry, local-only storage
+- **📶 Offline Ready** - Service worker caching with Stale-While-Revalidate
+- **🎨 Dark Mode** - Neon-green accents on dark palette
+- **⚡ Fast** - 64 KB gzipped bundle, <1s initial load
+
+## 🎯 Beta Scope
+
+**What's Working:**
+- ✅ Full offline PWA experience
+- ✅ Screenshot analysis flow (demo data)
+- ✅ Trade journal CRUD operations
+- ✅ Replay controls and annotations
+- ✅ Feedback modal and metrics export
+
+**What's Coming (Alpha v0.2):**
+- 🔜 Live Dexscreener API integration
+- 🔜 Production S/R detection algorithm
+- 🔜 Multi-chart comparison mode
+- 🔜 Social sharing with privacy controls
+- 🔜 Community feature voting
+
 ## 📋 Roadmap
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the full development plan.
 
-**Current Status:** ✅ Foundation & Hülle complete  
-**Next Phase:** Phase 1 - Core UI & Data Layer
+**Current Status:** ✅ Phase 5 - Beta Teaser Launch (Wave 1)  
+**Next Phase:** Alpha Release (Live API + Enhanced Analysis)
 
 ## 🤝 Contributing
 
@@ -154,12 +186,31 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the full development plan.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🔒 Privacy Guarantee
+
+- ✅ **No tracking scripts** - Zero third-party analytics
+- ✅ **Local-only data** - All storage in IndexedDB
+- ✅ **No PII** - Anonymous event counters only
+- ✅ **User-controlled export** - Data never auto-uploads
+
+See [docs/PHASE4_COMPLETE.md](docs/PHASE4_COMPLETE.md) for full privacy posture.
+
+## 💬 Feedback & Community
+
+- **In-App Feedback:** Click the 💬 button (140 char, Twitter-style)
+- **Metrics Export:** Click the 📊 button to download JSON/CSV
+- **Twitter/X:** [#Sparkfined](https://twitter.com/search?q=%23Sparkfined) [#Cryptober](https://twitter.com/search?q=%23Cryptober) [#DegenTools](https://twitter.com/search?q=%23DegenTools)
+- **Discord:** Coming soon - watch for announcements
+- **Issues:** [GitHub Issues](https://github.com/<USERNAME>/sparkfined-ta-pwa/issues)
+
 ## 🔗 Links
 
+- **Live Demo:** [Add URL after deployment]
+- **Beta Info:** [public/beta-info.json](public/beta-info.json)
+- **Changelog:** [docs/CHANGELOG.md](docs/CHANGELOG.md)
 - **Documentation:** [docs/SETUP.md](docs/SETUP.md)
-- **GitHub Issues:** Report bugs and feature requests
 - **Repository:** https://github.com/<USERNAME>/sparkfined-ta-pwa
 
 ---
 
-**Built with ⚡ by the Sparkfined team**
+**Built with ⚡ by the Sparkfined team • Cryptober 2025**
