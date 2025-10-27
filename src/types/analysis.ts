@@ -1,12 +1,83 @@
 /**
  * Analysis Types - Chart & Token Analysis Data Models
- * 
+ *
  * Defines types for technical analysis results, including both
  * current heuristic-based analysis and future orderflow/wallet metrics
  */
 
 import type { OrderflowDirection, OrderflowStrength } from '@/lib/data/orderflow'
 import type { WalletAccumulation } from '@/lib/data/walletFlow'
+
+/**
+ * OCR Result Types
+ */
+export interface OCRResult {
+  text: string
+  confidence: number
+  labels: string[]
+  indicators: {
+    rsi?: number
+    bollinger?: 'upper' | 'middle' | 'lower'
+    ema?: number[]
+    sma?: number[]
+    volume?: string
+    price?: number
+  }
+  processingTime: number
+}
+
+/**
+ * Dexscreener API Response Types
+ */
+export interface DexscreenerTokenData {
+  price: number
+  high24: number
+  low24: number
+  vol24: number
+  liquidity?: number
+  marketCap?: number
+  priceChange24h?: number
+  symbol?: string
+  name?: string
+  address?: string
+  chain?: string
+  timestamp: number
+}
+
+/**
+ * Pump.fun API Response Types (Beta: Mock, Alpha: Live)
+ */
+export interface PumpfunTokenData {
+  name: string
+  symbol: string
+  liquidity: number
+  launchDate: string
+  bondingCurve?: number
+  creatorAddress?: string
+  socialLinks?: {
+    twitter?: string
+    telegram?: string
+    website?: string
+  }
+}
+
+/**
+ * AI Teaser Analysis Response
+ */
+export interface AITeaserAnalysis {
+  sr_levels: Array<{
+    label: string
+    price: number
+    type: 'support' | 'resistance'
+  }>
+  stop_loss: number
+  tp: number[]
+  indicators: string[]
+  teaser_text: string
+  confidence: number
+  processingTime: number
+  provider: 'openai' | 'grok' | 'anthropic' | 'heuristic'
+}
 
 /**
  * Core heuristic analysis (current implementation)
