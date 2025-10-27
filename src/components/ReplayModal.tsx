@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { getEventsBySession } from '@/lib/db'
 import type { SessionEvent } from '@/lib/db'
 
@@ -14,13 +14,7 @@ export default function ReplayModal({ isOpen, onClose, sessionId }: ReplayModalP
   const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (isOpen && sessionId) {
-      loadEvents()
-    }
-  }, [isOpen, sessionId])
-
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     setIsLoading(true)
     try {
       const sessionEvents = await getEventsBySession(sessionId)
@@ -30,7 +24,13 @@ export default function ReplayModal({ isOpen, onClose, sessionId }: ReplayModalP
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [sessionId])
+
+  useEffect(() => {
+    if (isOpen && sessionId) {
+      loadEvents()
+    }
+  }, [isOpen, sessionId, loadEvents])
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp)

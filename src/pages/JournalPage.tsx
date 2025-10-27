@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useState } from 'react'
 <<<<<<< HEAD
 import { BookOpenIcon, PlusIcon } from '@heroicons/react/24/outline'
@@ -12,6 +13,9 @@ import { ViewState } from '@/types/viewState'
 >>>>>>> origin/pr/2
 =======
 import { useState, useEffect } from 'react'
+=======
+import { useState, useEffect, useCallback } from 'react'
+>>>>>>> origin/pr/4
 import SaveTradeModal from '@/components/SaveTradeModal'
 import ReplayModal from '@/components/ReplayModal'
 import { getAllTrades, deleteTrade, exportTradesToCSV, downloadCSV, initDB } from '@/lib/db'
@@ -30,6 +34,7 @@ export default function JournalPage() {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest')
   const { log } = useEventLogger()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   const handleStateDemo = (state: ViewState) => {
@@ -147,6 +152,9 @@ export default function JournalPage() {
   }, [trades, searchQuery, filterStatus, sortBy])
 
   const loadTrades = async () => {
+=======
+  const loadTrades = useCallback(async () => {
+>>>>>>> origin/pr/4
     try {
       const allTrades = await getAllTrades()
       setTrades(allTrades)
@@ -154,9 +162,9 @@ export default function JournalPage() {
     } catch (error) {
       console.error('Failed to load trades:', error)
     }
-  }
+  }, [log])
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...trades]
 
     // Filter by search query
@@ -179,7 +187,15 @@ export default function JournalPage() {
     })
 
     setFilteredTrades(filtered)
-  }
+  }, [trades, searchQuery, filterStatus, sortBy])
+
+  useEffect(() => {
+    initDB().then(loadTrades)
+  }, [loadTrades])
+
+  useEffect(() => {
+    applyFilters()
+  }, [applyFilters])
 
   const handleDeleteTrade = async (id: number) => {
     if (!confirm('Are you sure you want to delete this trade entry?')) return

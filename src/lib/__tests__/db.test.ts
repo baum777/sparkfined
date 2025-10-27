@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { saveTrade, getAllTrades, logEvent, getAllEvents, exportTradesToCSV } from '../db'
+import { exportTradesToCSV } from '../db'
 
 // Mock IndexedDB for testing
 const mockIndexedDB = () => {
@@ -11,9 +11,9 @@ const mockIndexedDB = () => {
   return {
     open: () => ({
       result: {
-        transaction: (storeNames: string[]) => ({
+        transaction: (_storeNames: string[]) => ({
           objectStore: (name: string) => ({
-            add: (data: unknown) => ({
+            add: (_data: unknown) => ({
               onsuccess: null,
               onerror: null,
               result: stores[name].length + 1,
