@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getEventsBySession } from '@/lib/db'
 import type { SessionEvent } from '@/lib/db'
 
@@ -13,24 +13,48 @@ export default function ReplayModal({ isOpen, onClose, sessionId }: ReplayModalP
   const [events, setEvents] = useState<SessionEvent[]>([])
   const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  // Memoize sorted events to avoid re-sorting
+  const sortedEvents = useMemo(() => {
+    return [...events].sort((a, b) => a.timestamp - b.timestamp)
+  }, [events])
 
   const loadEvents = useCallback(async () => {
+    if (!sessionId) return
+    
     setIsLoading(true)
     try {
-      const sessionEvents = await getEventsBySession(sessionId)
-      setEvents(sessionEvents.sort((a, b) => a.timestamp - b.timestamp))
+      // Use requestIdleCallback for non-blocking load if available
+      const loadTask = async () => {
+        const sessionEvents = await getEventsBySession(sessionId)
+        setEvents(sessionEvents)
+        setIsLoading(false)
+      }
+      
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => loadTask())
+      } else {
+        await loadTask()
+      }
     } catch (error) {
       console.error('Failed to load events:', error)
-    } finally {
       setIsLoading(false)
     }
   }, [sessionId])
 
   useEffect(() => {
-    if (isOpen && sessionId) {
+    if (isOpen && sessionId && !mounted) {
+      setMounted(true)
       loadEvents()
     }
-  }, [isOpen, sessionId, loadEvents])
+    
+    // Reset when closed
+    if (!isOpen) {
+      setMounted(false)
+      setSelectedEventIndex(null)
+    }
+  }, [isOpen, sessionId, loadEvents, mounted])
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp)
@@ -84,15 +108,16 @@ export default function ReplayModal({ isOpen, onClose, sessionId }: ReplayModalP
           <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 overflow-y-auto">
             {isLoading ? (
               <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                Loading events...
+                <div className="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full mb-2" />
+                <p>Loading events...</p>
               </div>
-            ) : events.length === 0 ? (
+            ) : sortedEvents.length === 0 ? (
               <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                 No events recorded for this session
               </div>
             ) : (
               <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                {events.map((event, index) => (
+                {sortedEvents.map((event, index) => (
                   <button
                     key={event.id}
                     onClick={() => setSelectedEventIndex(index)}
@@ -121,7 +146,7 @@ export default function ReplayModal({ isOpen, onClose, sessionId }: ReplayModalP
 
           {/* Main content area - Timeline/Details */}
           <div className="flex-1 p-6 overflow-y-auto">
-            {selectedEventIndex !== null && events[selectedEventIndex] ? (
+            {selectedEventIndex !== null && sortedEvents[selectedEventIndex] ? (
               <div className="space-y-4">
                 <div className="card">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
@@ -131,30 +156,30 @@ export default function ReplayModal({ isOpen, onClose, sessionId }: ReplayModalP
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-slate-400">Type:</span>
                       <span className="font-medium text-slate-900 dark:text-slate-100">
-                        {formatEventType(events[selectedEventIndex].type)}
+                        {formatEventType(sortedEvents[selectedEventIndex].type)}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-slate-400">Time:</span>
                       <span className="font-medium text-slate-900 dark:text-slate-100">
-                        {new Date(events[selectedEventIndex].timestamp).toLocaleString()}
+                        {new Date(sortedEvents[selectedEventIndex].timestamp).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-slate-400">Session:</span>
                       <span className="font-mono text-xs text-slate-900 dark:text-slate-100">
-                        {events[selectedEventIndex].sessionId.slice(0, 20)}...
+                        {sortedEvents[selectedEventIndex].sessionId.slice(0, 20)}...
                       </span>
                     </div>
                   </div>
 
-                  {events[selectedEventIndex].data && (
+                  {sortedEvents[selectedEventIndex].data && (
                     <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                       <div className="text-sm text-slate-600 dark:text-slate-400 mb-2">
                         Event Data:
                       </div>
                       <pre className="text-xs bg-slate-100 dark:bg-slate-900 p-3 rounded-lg overflow-x-auto">
-                        {JSON.stringify(events[selectedEventIndex].data, null, 2)}
+                        {JSON.stringify(sortedEvents[selectedEventIndex].data, null, 2)}
                       </pre>
                     </div>
                   )}
@@ -167,7 +192,7 @@ export default function ReplayModal({ isOpen, onClose, sessionId }: ReplayModalP
                   </h3>
                   <div className="relative">
                     <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200 dark:bg-slate-700" />
-                    {events.map((event, index) => (
+                    {sortedEvents.map((event, index) => (
                       <div
                         key={event.id}
                         className={`relative pl-10 pb-4 ${
@@ -211,7 +236,7 @@ export default function ReplayModal({ isOpen, onClose, sessionId }: ReplayModalP
         {/* Footer */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
           <div className="flex justify-between items-center text-sm text-slate-600 dark:text-slate-400">
-            <span>{events.length} events recorded</span>
+            <span>{sortedEvents.length} events recorded</span>
             <span className="text-xs">Static preview • No scrubbing yet</span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ChartBarIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import type { ViewState } from '@/types/viewState'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
@@ -16,17 +17,28 @@ import { ViewState } from '@/types/viewState'
 import { useEventLogger } from '@/hooks/useEventLogger'
 >>>>>>> origin/pr/3
 =======
+=======
+import DropZone from '@/components/DropZone'
+>>>>>>> origin/pr/10
 import ViewStateHandler from '@/components/ViewStateHandler'
 import SaveTradeModal from '@/components/SaveTradeModal'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
 import { ViewState } from '@/types/viewState'
 import { useEventLogger } from '@/hooks/useEventLogger'
+<<<<<<< HEAD
 >>>>>>> origin/pr/8
+=======
+import { compressImage } from '@/lib/imageUtils'
+>>>>>>> origin/pr/10
 
 export default function AnalyzePage() {
   const [viewState, setViewState] = useState<ViewState>('empty')
   const [isSaveTradeOpen, setIsSaveTradeOpen] = useState(false)
+  const [contractAddress, setContractAddress] = useState<string | null>(null)
+  const [showSkeleton, setShowSkeleton] = useState(false)
   const { log } = useEventLogger()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   // Simulate state changes for demo
@@ -126,42 +138,71 @@ export default function AnalyzePage() {
 =======
 =======
 >>>>>>> origin/pr/8
+=======
+  const handleDropZoneReady = async ({ file, ca }: { file?: File; ca?: string }) => {
+    if (file) {
+      log('upload_ok', { source: 'image', size: file.size })
+      
+      // Show skeleton immediately
+      setShowSkeleton(true)
+      setViewState('loading')
+      
+      try {
+        // Compress image (target 1MB)
+        const compressed = await compressImage(file, 1, 0.85)
+        // Image stored for future use (analysis API integration)
+        
+        log('image_processed', { 
+          originalSize: file.size, 
+          compressedSize: compressed.size,
+          compressionRatio: (compressed.size / file.size).toFixed(2)
+        })
+        
+        // Simulate analysis delay (replace with actual analysis)
+        setTimeout(() => {
+          setViewState('result')
+          setShowSkeleton(false)
+        }, 600)
+        
+      } catch (error) {
+        console.error('Image processing failed:', error)
+        log('image_processing_error', { error: String(error) })
+        alert('Failed to process image. Please try again.')
+        setViewState('empty')
+        setShowSkeleton(false)
+      }
+    } else if (ca) {
+      log('paste_ca_ok', { ca: ca.slice(0, 10) })
+      setContractAddress(ca)
+      
+      // Show skeleton immediately
+      setShowSkeleton(true)
+      setViewState('loading')
+      
+      // Simulate CA lookup (replace with actual Dexscreener API call)
+      setTimeout(() => {
+        setViewState('result')
+        setShowSkeleton(false)
+        log('analysis_done', { source: 'ca' })
+      }, 500)
+    }
+  }
+
+>>>>>>> origin/pr/10
   const emptyContent = (
-    <div className="text-center space-y-6 px-4 py-12 animate-fade-in">
-      {/* Icon: Minimalist chart symbol */}
-      <div className="inline-flex items-center justify-center w-20 h-20 rounded-xl bg-surface border border-border-accent/20 mb-2">
-        <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-        </svg>
-      </div>
+    <div className="px-4 py-12 animate-fade-in">
+      <DropZone onReady={handleDropZoneReady} />
       
-      <div className="space-y-3">
-        <h2 className="text-display-sm font-display font-bold text-text-primary">
-          Ready to Analyze
-        </h2>
-        <p className="text-text-secondary text-base max-w-md mx-auto leading-relaxed">
-          Drop a chart. Read the tape. <span className="text-accent font-medium">Carve the candle.</span>
-        </p>
-      </div>
-      
-      <div className="flex gap-3 justify-center pt-4">
-        <button
-          onClick={() => {
-            setViewState('loading')
-            log('screenshot_dropped', { source: 'upload_button' })
-          }}
-          className="btn-primary"
-        >
-          Drop Chart
-        </button>
+      {/* Demo Mode Button */}
+      <div className="text-center mt-8">
         <button
           onClick={() => {
             setViewState('result')
             log('demo_mode_activated')
           }}
-          className="btn-ghost"
+          className="btn-ghost text-sm"
         >
-          Demo Mode
+          💡 Try Demo Mode
         </button>
       </div>
     </div>
@@ -252,22 +293,24 @@ export default function AnalyzePage() {
     </div>
   )
 
-  // Simulate loading → result transition
-  if (viewState === 'loading') {
-    setTimeout(() => setViewState('result'), 800)
-  }
+  // Show skeleton during loading
+  const loadingContent = showSkeleton ? <LoadingSkeleton type="analysis" /> : null
 
   return (
     <>
-      <ViewStateHandler
-        state={viewState}
-        emptyContent={emptyContent}
-        resultContent={resultContent}
-      />
+      {viewState === 'loading' && loadingContent ? (
+        loadingContent
+      ) : (
+        <ViewStateHandler
+          state={viewState}
+          emptyContent={emptyContent}
+          resultContent={resultContent}
+        />
+      )}
       <SaveTradeModal
         isOpen={isSaveTradeOpen}
         onClose={() => setIsSaveTradeOpen(false)}
-        prefillToken="BTC/USD"
+        prefillToken={contractAddress ? `CA: ${contractAddress.slice(0, 8)}...` : "BTC/USD"}
         prefillPrice={42850}
       />
     </>
