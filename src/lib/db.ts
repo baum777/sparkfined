@@ -1,8 +1,8 @@
 // IndexedDB utilities for Sparkfined TA-PWA
-// Handles trades and events storage with offline-first approach
+// Handles trades, events, metrics, and feedback storage with offline-first approach
 
 const DB_NAME = 'sparkfined-ta-pwa'
-const DB_VERSION = 1
+const DB_VERSION = 2 // Bumped for metrics + feedback stores
 
 export interface TradeEntry {
   id?: number
@@ -22,6 +22,22 @@ export interface SessionEvent {
   type: string // e.g., "screenshot_dropped", "save_trade_clicked"
   timestamp: number
   data?: Record<string, unknown>
+}
+
+export interface MetricEntry {
+  id?: number
+  eventType: string // e.g., "drop_to_result", "save_trade", "open_replay", "export_share"
+  count: number
+  lastUpdated: number
+}
+
+export interface FeedbackEntry {
+  id?: number
+  type: 'Bug' | 'Idea' | 'Other'
+  text: string
+  timestamp: number
+  status: 'queued' | 'exported'
+  sessionId: string
 }
 
 let dbInstance: IDBDatabase | null = null
@@ -62,6 +78,25 @@ export async function initDB(): Promise<IDBDatabase> {
         eventStore.createIndex('sessionId', 'sessionId', { unique: false })
         eventStore.createIndex('timestamp', 'timestamp', { unique: false })
         eventStore.createIndex('type', 'type', { unique: false })
+      }
+
+      // Create metrics store (Phase 4)
+      if (!db.objectStoreNames.contains('metrics')) {
+        const metricsStore = db.createObjectStore('metrics', {
+          keyPath: 'eventType',
+        })
+        metricsStore.createIndex('lastUpdated', 'lastUpdated', { unique: false })
+      }
+
+      // Create feedback store (Phase 4)
+      if (!db.objectStoreNames.contains('feedback')) {
+        const feedbackStore = db.createObjectStore('feedback', {
+          keyPath: 'id',
+          autoIncrement: true,
+        })
+        feedbackStore.createIndex('timestamp', 'timestamp', { unique: false })
+        feedbackStore.createIndex('status', 'status', { unique: false })
+        feedbackStore.createIndex('type', 'type', { unique: false })
       }
     }
   })
@@ -201,4 +236,179 @@ export function getSessionId(): string {
 export function startNewSession(): string {
   currentSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   return currentSessionId
+}
+
+// Metrics operations (Phase 4 - Telemetry Light)
+export async function incrementMetric(eventType: string): Promise<void> {
+  const db = await initDB()
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['metrics'], 'readwrite')
+    const store = transaction.objectStore('metrics')
+    const getRequest = store.get(eventType)
+
+    getRequest.onsuccess = () => {
+      const existing = getRequest.result as MetricEntry | undefined
+      const updated: MetricEntry = {
+        eventType,
+        count: (existing?.count || 0) + 1,
+        lastUpdated: Date.now(),
+      }
+      const putRequest = store.put(updated)
+      putRequest.onsuccess = () => resolve()
+      putRequest.onerror = () => reject(putRequest.error)
+    }
+
+    getRequest.onerror = () => reject(getRequest.error)
+  })
+}
+
+export async function getAllMetrics(): Promise<MetricEntry[]> {
+  const db = await initDB()
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['metrics'], 'readonly')
+    const store = transaction.objectStore('metrics')
+    const request = store.getAll()
+
+    request.onsuccess = () => resolve(request.result as MetricEntry[])
+    request.onerror = () => reject(request.error)
+  })
+}
+
+export async function resetMetrics(): Promise<void> {
+  const db = await initDB()
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['metrics'], 'readwrite')
+    const store = transaction.objectStore('metrics')
+    const request = store.clear()
+
+    request.onsuccess = () => resolve()
+    request.onerror = () => reject(request.error)
+  })
+}
+
+// Feedback operations (Phase 4)
+export async function saveFeedback(
+  feedback: Omit<FeedbackEntry, 'id'>
+): Promise<number> {
+  const db = await initDB()
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['feedback'], 'readwrite')
+    const store = transaction.objectStore('feedback')
+    const request = store.add(feedback)
+
+    request.onsuccess = () => resolve(request.result as number)
+    request.onerror = () => reject(request.error)
+  })
+}
+
+export async function getAllFeedback(): Promise<FeedbackEntry[]> {
+  const db = await initDB()
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['feedback'], 'readonly')
+    const store = transaction.objectStore('feedback')
+    const request = store.getAll()
+
+    request.onsuccess = () => resolve(request.result as FeedbackEntry[])
+    request.onerror = () => reject(request.error)
+  })
+}
+
+export async function markFeedbackExported(ids: number[]): Promise<void> {
+  const db = await initDB()
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['feedback'], 'readwrite')
+    const store = transaction.objectStore('feedback')
+
+    let completed = 0
+    ids.forEach((id) => {
+      const getRequest = store.get(id)
+      getRequest.onsuccess = () => {
+        const feedback = getRequest.result as FeedbackEntry
+        if (feedback) {
+          feedback.status = 'exported'
+          const putRequest = store.put(feedback)
+          putRequest.onsuccess = () => {
+            completed++
+            if (completed === ids.length) resolve()
+          }
+          putRequest.onerror = () => reject(putRequest.error)
+        } else {
+          completed++
+          if (completed === ids.length) resolve()
+        }
+      }
+      getRequest.onerror = () => reject(getRequest.error)
+    })
+  })
+}
+
+// Export utilities for metrics + feedback (Phase 4)
+export function exportMetricsAndFeedbackJSON(
+  metrics: MetricEntry[],
+  feedback: FeedbackEntry[]
+): string {
+  return JSON.stringify(
+    {
+      exportedAt: new Date().toISOString(),
+      metrics: metrics.map((m) => ({
+        eventType: m.eventType,
+        count: m.count,
+        lastUpdated: new Date(m.lastUpdated).toISOString(),
+      })),
+      feedback: feedback.map((f) => ({
+        type: f.type,
+        text: f.text,
+        timestamp: new Date(f.timestamp).toISOString(),
+        status: f.status,
+      })),
+      privacyNote: 'No PII collected - anonymous usage data only',
+    },
+    null,
+    2
+  )
+}
+
+export function exportMetricsAndFeedbackCSV(
+  metrics: MetricEntry[],
+  feedback: FeedbackEntry[]
+): string {
+  const lines: string[] = []
+
+  // Header + Privacy notice
+  lines.push('# Sparkfined TA-PWA - Metrics & Feedback Export')
+  lines.push(`# Exported at: ${new Date().toISOString()}`)
+  lines.push('# Privacy: No PII collected - anonymous usage data only')
+  lines.push('')
+
+  // Metrics section
+  lines.push('=== METRICS ===')
+  lines.push('Event Type,Count,Last Updated')
+  metrics.forEach((m) => {
+    lines.push(`${m.eventType},${m.count},${new Date(m.lastUpdated).toISOString()}`)
+  })
+  lines.push('')
+
+  // Feedback section
+  lines.push('=== FEEDBACK ===')
+  lines.push('Type,Text,Timestamp,Status')
+  feedback.forEach((f) => {
+    const escapedText = `"${f.text.replace(/"/g, '""')}"`
+    lines.push(`${f.type},${escapedText},${new Date(f.timestamp).toISOString()},${f.status}`)
+  })
+
+  return lines.join('\n')
+}
+
+export function downloadJSON(content: string, filename: string): void {
+  const blob = new Blob([content], { type: 'application/json;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+
+  link.setAttribute('href', url)
+  link.setAttribute('download', filename)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }

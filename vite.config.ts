@@ -17,8 +17,11 @@ export default defineConfig({
         theme_color: '#0f172a',
         background_color: '#020617',
         display: 'standalone',
+<<<<<<< HEAD
         orientation: 'portrait',
         scope: '/',
+=======
+>>>>>>> origin/pr/5
         start_url: '/',
         icons: [
           {
@@ -36,6 +39,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+<<<<<<< HEAD
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         // Runtime caching will be configured in Phase 4
         runtimeCaching: []
@@ -43,6 +47,66 @@ export default defineConfig({
       devOptions: {
         enabled: false // Disable SW in dev for faster iteration
       }
+=======
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // Pre-cache app shell for instant offline access
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/],
+        runtimeCaching: [
+          // Dexscreener API - Stale-While-Revalidate for fast perceived performance
+          {
+            urlPattern: /^https:\/\/api\.dexscreener\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'dexscreener-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 86400, // 24 hours
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+              // Add cache timestamp for age checking
+              plugins: [
+                {
+                  cacheKeyWillBeUsed: async ({ request }) => {
+                    return request.url + '?t=' + Math.floor(Date.now() / 3600000)
+                  },
+                },
+              ],
+            },
+          },
+          // Other external APIs
+          {
+            urlPattern: /^https:\/\/api\.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 300, // 5 minutes
+              },
+            },
+          },
+          // CDN assets (fonts, icons, etc.)
+          {
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 31536000, // 1 year
+              },
+            },
+          },
+        ],
+      },
+      devOptions: {
+        enabled: false, // Disable SW in dev for easier debugging
+      },
+>>>>>>> origin/pr/5
     })
   ],
   resolve: {
