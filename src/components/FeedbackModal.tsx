@@ -27,13 +27,20 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
     setIsSaving(true)
     try {
-      await saveFeedback({
+      const feedbackEntry = {
         type: feedbackType,
         text: feedbackText.trim(),
         timestamp: Date.now(),
-        status: 'queued',
+        status: 'queued' as const,
         sessionId: getSessionId(),
-      })
+      }
+      
+      // Ensure data is valid before saving
+      if (!feedbackEntry.text || feedbackEntry.text.length === 0) {
+        throw new Error('Feedback text cannot be empty')
+      }
+      
+      await saveFeedback(feedbackEntry)
 
       setShowSuccess(true)
       setTimeout(() => {
@@ -42,6 +49,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
       }, 1500)
     } catch (error) {
       console.error('Failed to save feedback:', error)
+      alert('Failed to save feedback. Please try again.')
       setIsSaving(false)
     }
   }
