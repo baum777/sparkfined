@@ -1,5 +1,6 @@
 import { useState } from 'react'
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ChartBarIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import type { ViewState } from '@/types/viewState'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
@@ -14,12 +15,19 @@ import { ViewState } from '@/types/viewState'
 =======
 import { useEventLogger } from '@/hooks/useEventLogger'
 >>>>>>> origin/pr/3
+=======
+import ViewStateHandler from '@/components/ViewStateHandler'
+import SaveTradeModal from '@/components/SaveTradeModal'
+import { ViewState } from '@/types/viewState'
+import { useEventLogger } from '@/hooks/useEventLogger'
+>>>>>>> origin/pr/8
 
 export default function AnalyzePage() {
   const [viewState, setViewState] = useState<ViewState>('empty')
   const [isSaveTradeOpen, setIsSaveTradeOpen] = useState(false)
   const { log } = useEventLogger()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   // Simulate state changes for demo
   const handleStateDemo = (state: ViewState) => {
@@ -116,13 +124,26 @@ export default function AnalyzePage() {
     </div>
   )
 =======
+=======
+>>>>>>> origin/pr/8
   const emptyContent = (
-    <div className="text-center space-y-4 px-4">
-      <div className="text-6xl mb-4">📊</div>
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Ready to Analyze</h2>
-      <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-        Upload a chart or drop market data to begin technical analysis
-      </p>
+    <div className="text-center space-y-6 px-4 py-12 animate-fade-in">
+      {/* Icon: Minimalist chart symbol */}
+      <div className="inline-flex items-center justify-center w-20 h-20 rounded-xl bg-surface border border-border-accent/20 mb-2">
+        <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
+      </div>
+      
+      <div className="space-y-3">
+        <h2 className="text-display-sm font-display font-bold text-text-primary">
+          Ready to Analyze
+        </h2>
+        <p className="text-text-secondary text-base max-w-md mx-auto leading-relaxed">
+          Drop a chart. Read the tape. <span className="text-accent font-medium">Carve the candle.</span>
+        </p>
+      </div>
+      
       <div className="flex gap-3 justify-center pt-4">
         <button
           onClick={() => {
@@ -131,14 +152,14 @@ export default function AnalyzePage() {
           }}
           className="btn-primary"
         >
-          Upload Chart
+          Drop Chart
         </button>
         <button
           onClick={() => {
             setViewState('result')
             log('demo_mode_activated')
           }}
-          className="px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="btn-ghost"
         >
           Demo Mode
         </button>
@@ -147,34 +168,44 @@ export default function AnalyzePage() {
   )
 
   const resultContent = (
-    <div className="p-4 space-y-4 max-w-2xl mx-auto">
+    <div className="p-4 space-y-4 max-w-2xl mx-auto animate-slide-up">
+      {/* Primary Analysis Card */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-          Analysis Result (Placeholder)
-        </h3>
-        <div className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
-          <div className="flex justify-between">
-            <span>Token:</span>
-            <span className="font-medium text-slate-900 dark:text-slate-100">BTC/USD</span>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-display font-semibold text-text-primary">
+            Chart Analysis
+          </h3>
+          <span className="text-xs font-mono text-text-tertiary">Demo Mode</span>
+        </div>
+        
+        {/* Metrics Grid - Monospace precision */}
+        <div className="space-y-3 font-mono text-sm">
+          <div className="flex justify-between py-2 border-b border-border-subtle">
+            <span className="text-text-secondary">Token</span>
+            <span className="font-semibold text-text-primary">BTC/USD</span>
           </div>
-          <div className="flex justify-between">
-            <span>Current Price:</span>
-            <span className="font-medium text-slate-900 dark:text-slate-100">$42,850</span>
+          <div className="flex justify-between py-2 border-b border-border-subtle">
+            <span className="text-text-secondary">Current Price</span>
+            <span className="font-semibold text-text-primary">$42,850.00</span>
           </div>
-          <div className="flex justify-between">
-            <span>Trend:</span>
-            <span className="font-medium text-green-600 dark:text-green-400">Bullish</span>
+          <div className="flex justify-between py-2 border-b border-border-subtle">
+            <span className="text-text-secondary">Trend</span>
+            <span className="font-semibold text-bull flex items-center gap-1">
+              <span className="inline-block w-2 h-2 rounded-full bg-bull glow-accent" />
+              Bullish
+            </span>
           </div>
-          <div className="flex justify-between">
-            <span>Support Level:</span>
-            <span className="font-medium text-slate-900 dark:text-slate-100">$42,150</span>
+          <div className="flex justify-between py-2 border-b border-border-subtle">
+            <span className="text-text-secondary">Support</span>
+            <span className="font-semibold text-cyan">$42,150.00</span>
           </div>
-          <div className="flex justify-between">
-            <span>Resistance Level:</span>
-            <span className="font-medium text-slate-900 dark:text-slate-100">$45,280</span>
+          <div className="flex justify-between py-2">
+            <span className="text-text-secondary">Resistance</span>
+            <span className="font-semibold text-bear">$45,280.00</span>
           </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 mt-6">
           <button
             onClick={() => {
@@ -183,37 +214,38 @@ export default function AnalyzePage() {
             }}
             className="btn-primary"
           >
-            💾 Save Trade
+            Mark Entry
           </button>
           <button
             onClick={() => {
               setViewState('empty')
               log('new_analysis_clicked')
             }}
-            className="px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="btn-ghost"
           >
-            New Analysis
+            New Chart
           </button>
         </div>
       </div>
 
-      {/* Quick insights placeholder */}
-      <div className="card">
-        <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">
+      {/* Insights Card */}
+      <div className="card border-accent/10">
+        <h4 className="font-display font-semibold text-text-primary mb-4 flex items-center gap-2">
+          <span className="inline-block w-1 h-4 bg-accent rounded-full glow-accent" />
           Quick Insights
         </h4>
-        <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-          <li className="flex items-start gap-2">
-            <span>✓</span>
+        <ul className="space-y-3 text-sm">
+          <li className="flex items-start gap-3 text-text-secondary">
+            <span className="text-accent mt-0.5">✓</span>
             <span>Strong upward momentum detected in 4H timeframe</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span>✓</span>
+          <li className="flex items-start gap-3 text-text-secondary">
+            <span className="text-accent mt-0.5">✓</span>
             <span>Volume increasing on green candles</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span>⚠️</span>
-            <span>Approaching resistance zone - consider taking profit</span>
+          <li className="flex items-start gap-3 text-text-secondary">
+            <span className="text-brand mt-0.5">⚠</span>
+            <span>Approaching resistance zone — consider taking profit</span>
           </li>
         </ul>
       </div>
@@ -240,5 +272,8 @@ export default function AnalyzePage() {
       />
     </>
   )
+<<<<<<< HEAD
 >>>>>>> origin/pr/2
+=======
+>>>>>>> origin/pr/8
 }

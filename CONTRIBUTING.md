@@ -1,6 +1,7 @@
 # Contributing to Sparkfined TA-PWA
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Welcome! This guide is optimized for both human developers and AI agents (Cursor, Claude, etc.).
 
 ## Quick Start
@@ -135,6 +136,8 @@ export function formatDate(date: Date): string { ... }
 import { Button } from '../../../components/Button'
 export function formatDate(date: any) { ... }
 =======
+=======
+>>>>>>> origin/pr/8
 ## 🤝 Welcome
 Thank you for contributing! This guide is optimized for both **human developers** and **AI agents** (Cursor/Claude).
 
@@ -255,11 +258,15 @@ function parseChart(data: unknown): ChartData[] {
 function parseChart(data: any) {
   return data.map(x => x); // 🚫 No type safety
 }
+<<<<<<< HEAD
 >>>>>>> origin/pr/2
+=======
+>>>>>>> origin/pr/8
 ```
 
 ### React Components
 - **Functional components** with hooks
+<<<<<<< HEAD
 <<<<<<< HEAD
 - **Named exports** for utilities
 - **Default exports** for components
@@ -439,6 +446,8 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 **Thank you for contributing to Sparkfined TA-PWA! 🚀**
 =======
+=======
+>>>>>>> origin/pr/8
 - Prop interfaces exported separately
 - Use `React.FC` sparingly (explicit types preferred)
 
@@ -545,4 +554,7 @@ describe('Button', () => {
 ---
 
 **Code of Conduct:** Be respectful, collaborative, and constructive. We're building something great together! 🌟
+<<<<<<< HEAD
 >>>>>>> origin/pr/2
+=======
+>>>>>>> origin/pr/8

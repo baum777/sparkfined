@@ -5,6 +5,7 @@ import './styles/index.css'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Register Service Worker for PWA
 // Note: SW registration is handled by vite-plugin-pwa in production builds
 // In development, SW is disabled for faster iteration (see vite.config.ts)
@@ -26,6 +27,8 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 // For Phase 4, we'll add advanced offline caching and sync strategies
 >>>>>>> origin/pr/2
 =======
+=======
+>>>>>>> origin/pr/8
 // Service Worker Registration - Phase 4: Offline & Feedback
 // Register SW with lifecycle notifications for better UX
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
@@ -73,7 +76,10 @@ window.addEventListener('offline', () => {
   console.log('📴 Offline mode')
   document.body.classList.add('offline-mode')
 })
+<<<<<<< HEAD
 >>>>>>> origin/pr/5
+=======
+>>>>>>> origin/pr/8
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

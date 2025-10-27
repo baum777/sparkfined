@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Development Workflow
 
 Guide for human developers and AI agents working on Sparkfined TA-PWA.
@@ -522,6 +523,8 @@ Before starting Phase 2:
 - **Structure:** `docs/PROJECT_STRUCTURE.md`
 - **Roadmap:** `docs/ROADMAP.md`
 =======
+=======
+>>>>>>> origin/pr/8
 # Development Workflow — Sparkfined TA-PWA
 
 ## 🎯 Overview
@@ -880,14 +883,20 @@ const db = await indexedDB.open('sparkfined-ta-pwa', 2)
 - [ ] No linter errors
 - [ ] Branch merged to main
 - [ ] Issue tracking updated
+<<<<<<< HEAD
 >>>>>>> origin/pr/2
+=======
+>>>>>>> origin/pr/8
 
 ---
 
 **Last Updated:** 2025-10-25  
 <<<<<<< HEAD
+<<<<<<< HEAD
 **Maintained by:** Sparkfined Team
 =======
+=======
+>>>>>>> origin/pr/8
 **Current Status:** ✅ Phase 1 Complete — Ready for Phase 2
 
 ## Phase 2 Readiness
@@ -922,4 +931,7 @@ pnpm dev
 # - Journal page (/journal, entries list)
 # - Replay page (/replay, playback controls)
 ```
+<<<<<<< HEAD
 >>>>>>> origin/pr/2
+=======
+>>>>>>> origin/pr/8

@@ -1,6 +1,7 @@
 export type ViewState = 'empty' | 'loading' | 'error' | 'result'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export interface ViewStateProps<T> {
   state: ViewState
   data?: T
@@ -10,4 +11,9 @@ export interface ViewStateProps {
   state: ViewState
   error?: string
 >>>>>>> origin/pr/2
+=======
+export interface ViewStateProps {
+  state: ViewState
+  error?: string
+>>>>>>> origin/pr/8
 }

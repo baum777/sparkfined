@@ -9,29 +9,32 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Sparkfined TA-PWA',
         short_name: 'Sparkfined',
         description: 'Technical Analysis Progressive Web App',
-        theme_color: '#0f172a',
-        background_color: '#020617',
+        theme_color: '#1e293b',
+        background_color: '#0f172a',
         display: 'standalone',
+<<<<<<< HEAD
 <<<<<<< HEAD
         orientation: 'portrait',
         scope: '/',
 =======
 >>>>>>> origin/pr/5
+=======
+>>>>>>> origin/pr/8
         start_url: '/',
         icons: [
           {
-            src: '/icon-192.png',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: '/icon-512.png',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
@@ -39,6 +42,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+<<<<<<< HEAD
 <<<<<<< HEAD
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         // Runtime caching will be configured in Phase 4
@@ -48,6 +52,8 @@ export default defineConfig({
         enabled: false // Disable SW in dev for faster iteration
       }
 =======
+=======
+>>>>>>> origin/pr/8
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         // Pre-cache app shell for instant offline access
         navigateFallback: 'index.html',
@@ -106,7 +112,10 @@ export default defineConfig({
       devOptions: {
         enabled: false, // Disable SW in dev for easier debugging
       },
+<<<<<<< HEAD
 >>>>>>> origin/pr/5
+=======
+>>>>>>> origin/pr/8
     })
   ],
   resolve: {

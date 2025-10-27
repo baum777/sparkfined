@@ -9,16 +9,20 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "fmt": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
 =======
     "fmt": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
 >>>>>>> origin/pr/2
+=======
+    "fmt": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+>>>>>>> origin/pr/8
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "check": "pnpm fmt && pnpm lint && pnpm typecheck && pnpm build"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
