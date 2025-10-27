@@ -1,3 +1,0 @@
-# PWA Icon Placeholder (192x192)
-# Generate actual icons using a tool like https://realfavicongenerator.net/
-# For now, using vite.svg as fallback
