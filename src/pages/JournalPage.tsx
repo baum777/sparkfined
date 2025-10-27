@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useState } from 'react'
 <<<<<<< HEAD
 import { BookOpenIcon, PlusIcon } from '@heroicons/react/24/outline'
@@ -16,6 +17,9 @@ import { useState, useEffect } from 'react'
 =======
 import { useState, useEffect, useCallback } from 'react'
 >>>>>>> origin/pr/4
+=======
+import { useState, useEffect, useCallback } from 'react'
+>>>>>>> origin/pr/6
 import SaveTradeModal from '@/components/SaveTradeModal'
 import ReplayModal from '@/components/ReplayModal'
 import { getAllTrades, deleteTrade, exportTradesToCSV, downloadCSV, initDB } from '@/lib/db'
@@ -34,6 +38,7 @@ export default function JournalPage() {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest')
   const { log } = useEventLogger()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -155,6 +160,9 @@ export default function JournalPage() {
 =======
   const loadTrades = useCallback(async () => {
 >>>>>>> origin/pr/4
+=======
+  const loadTrades = useCallback(async () => {
+>>>>>>> origin/pr/6
     try {
       const allTrades = await getAllTrades()
       setTrades(allTrades)
