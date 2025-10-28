@@ -17,14 +17,8 @@ export default defineConfig({
         theme_color: '#1e293b',
         background_color: '#0f172a',
         display: 'standalone',
-<<<<<<< HEAD
-<<<<<<< HEAD
         orientation: 'portrait',
         scope: '/',
-=======
->>>>>>> origin/pr/5
-=======
->>>>>>> origin/pr/8
         start_url: '/',
         icons: [
           {
@@ -42,18 +36,6 @@ export default defineConfig({
         ]
       },
       workbox: {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        // Runtime caching will be configured in Phase 4
-        runtimeCaching: []
-      },
-      devOptions: {
-        enabled: false // Disable SW in dev for faster iteration
-      }
-=======
-=======
->>>>>>> origin/pr/8
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         // Pre-cache app shell for instant offline access
         navigateFallback: '/index.html',
@@ -104,10 +86,6 @@ export default defineConfig({
       devOptions: {
         enabled: false, // Disable SW in dev for easier debugging
       },
-<<<<<<< HEAD
->>>>>>> origin/pr/5
-=======
->>>>>>> origin/pr/8
     })
   ],
   resolve: {
