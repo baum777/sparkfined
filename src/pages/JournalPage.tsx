@@ -57,7 +57,7 @@ export default function JournalPage() {
 
   useEffect(() => {
     applyFilters()
-  }, [trades, searchQuery, filterStatus, sortBy])
+  }, [applyFilters])
 
   const handleDeleteTrade = async (id: number) => {
     if (!confirm('Are you sure you want to delete this trade entry?')) return

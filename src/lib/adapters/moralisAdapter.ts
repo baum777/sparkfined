@@ -44,6 +44,28 @@ const CHAIN_MAP: Record<ChainId, string> = {
 }
 
 // ============================================================================
+// TYPES
+// ============================================================================
+
+/**
+ * Moralis pair reserves response
+ */
+interface MoralisPairReserves {
+  reserve0?: string
+  reserve1?: string
+  token0?: {
+    address: string
+    symbol?: string
+    name?: string
+  }
+  token1?: {
+    address: string
+    symbol?: string
+    name?: string
+  }
+}
+
+// ============================================================================
 // IN-MEMORY CACHE (LRU)
 // ============================================================================
 
@@ -165,12 +187,11 @@ async function fetchMoralisPrice(
 /**
  * Fetch pair/liquidity data from Moralis (EVM only)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchMoralisPair(
   pairAddress: string,
   chain: ChainId,
   config: AdapterConfig
-): Promise<any> {
+): Promise<MoralisPairReserves | null> {
   if (chain === 'solana') {
     // Moralis Solana API doesn't have pair endpoint yet
     return null
@@ -221,8 +242,7 @@ function normalizeMoralisResponse(
   raw: MoralisPriceResponse,
   address: string,
   chain: ChainId,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pairData: any,
+  pairData: MoralisPairReserves | null,
   latency: number,
   cached: boolean
 ): MarketSnapshot {
@@ -253,7 +273,7 @@ function normalizeMoralisResponse(
 
     liquidity: {
       total: liquidity,
-      reserves: pairData?.reserve0
+      reserves: pairData?.reserve0 && pairData?.reserve1
         ? {
             token0: parseFloat(pairData.reserve0),
             token1: parseFloat(pairData.reserve1),
@@ -290,8 +310,7 @@ function normalizeMoralisResponse(
  */
 function calculateConfidence(
   data: MoralisPriceResponse,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pairData: any
+  pairData: MoralisPairReserves | null
 ): number {
   let score = 0.5 // Base score
 

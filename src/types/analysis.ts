@@ -154,7 +154,7 @@ export interface AnalysisResult {
     symbol: string
     name: string
     address: string
-    chain: 'solana' | 'ethereum' | 'bsc' | 'arbitrum' | 'base' | 'other'
+    chain: 'solana' | 'ethereum' | 'bsc' | 'arbitrum' | 'base' | 'polygon' | 'other'
     price: number
     priceChange24h?: number
     volume24h?: number
