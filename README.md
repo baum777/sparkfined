@@ -140,8 +140,9 @@ pnpm test        # Run all tests
 pnpm test:watch  # Run tests in watch mode
 ```
 
-## ✨ Features (Beta v0.1)
+## ✨ Features
 
+### Core Features (Beta v0.1)
 - **📸 Screenshot Drop Analysis** - Drag & drop chart screenshots for instant analysis
 - **📊 S/R + Volatility Detection** - Client-side technical analysis (placeholder algorithm)
 - **📝 Trade Journal** - Offline-first storage with JSON/CSV export
@@ -150,6 +151,12 @@ pnpm test:watch  # Run tests in watch mode
 - **📶 Offline Ready** - Service worker caching with Stale-While-Revalidate
 - **🎨 Dark Mode** - Neon-green accents on dark palette
 - **⚡ Fast** - 64 KB gzipped bundle, <1s initial load
+
+### Launch Fixes (v1.0.0-alpha)
+- **🔄 Manual Update Flow** - User-controlled SW updates (no silent reloads)
+- **📈 Lighthouse CI** - Performance budgets enforced (LCP < 2.5s, PWA Score 100)
+- **🧪 E2E PWA Tests** - Playwright smoke tests for offline, install, WCO
+- **📚 Complete Documentation** - Install guide, ops runbook, alpha status
 
 ## 🎯 Beta Scope
 
@@ -203,12 +210,27 @@ See [docs/PHASE4_COMPLETE.md](docs/PHASE4_COMPLETE.md) for full privacy posture.
 - **Discord:** Coming soon - watch for announcements
 - **Issues:** [GitHub Issues](https://github.com/<USERNAME>/sparkfined-ta-pwa/issues)
 
+## 📚 Documentation
+
+### User Guides
+- **📲 [Installation Guide](INSTALL_GUIDE.md)** - Install on Android, iOS, Desktop
+- **📖 [User Documentation](docs/SETUP.md)** - Getting started
+
+### Developer Resources
+- **🔧 [Operations Runbook](OPERATIONS.md)** - Deployment, monitoring, troubleshooting
+- **🤝 [Contributing Guide](CONTRIBUTING.md)** - How to contribute
+- **🎨 [Design System](DESIGN_SYSTEM.md)** - UI/UX standards
+- **📡 [API Usage](API_USAGE.md)** - API integration guide
+
+### Project Status
+- **✅ [Alpha Status](ALPHA_STATUS.md)** - Complete feature list and metrics
+- **📝 [Changelog](docs/CHANGELOG.md)** - Version history
+- **🗺️ [Roadmap](docs/ROADMAP.md)** - Future plans
+
 ## 🔗 Links
 
 - **Live Demo:** [Add URL after deployment]
 - **Beta Info:** [public/beta-info.json](public/beta-info.json)
-- **Changelog:** [docs/CHANGELOG.md](docs/CHANGELOG.md)
-- **Documentation:** [docs/SETUP.md](docs/SETUP.md)
 - **Repository:** https://github.com/<USERNAME>/sparkfined-ta-pwa
 
 ---

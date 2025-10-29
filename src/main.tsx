@@ -3,39 +3,21 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './styles/index.css'
 
-// Service Worker Registration - Phase 4: Offline & Feedback
-// Register SW with lifecycle notifications for better UX
+// Service Worker Registration - Manual Update Flow
+// SW is registered via vite-plugin-pwa with registerType: 'prompt'
+// Update handling is done via UpdateBanner component
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/',
-      })
-
-      console.log('✅ SW registered:', registration.scope)
-
-      // Handle SW updates
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
-              // New SW activated - notify user or auto-reload
-              console.log('🔄 SW updated - new version available')
-              // Optional: Show toast notification for update
-            }
-          })
-        }
-      })
-    } catch (error) {
-      console.warn('SW registration failed:', error)
-    }
-  })
-
-  // Listen for SW messages (e.g., cache status)
+  // Listen for SW messages (e.g., cache status, SKIP_WAITING)
   navigator.serviceWorker.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'CACHE_UPDATED') {
-      console.log('📦 Cache updated:', event.data.url)
+    if (event.data) {
+      switch (event.data.type) {
+        case 'CACHE_UPDATED':
+          console.log('📦 Cache updated:', event.data.url)
+          break
+        case 'SW_ACTIVATED':
+          console.log('✅ Service Worker activated')
+          break
+      }
     }
   })
 }
