@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout'
 import AnalyzePage from './pages/AnalyzePage'
 import JournalPage from './pages/JournalPage'
 import ReplayPage from './pages/ReplayPage'
+import { InstallCTA } from './components/InstallCTA'
 import './styles/App.css'
 
 function App() {
@@ -14,6 +15,9 @@ function App() {
           <Route path="/journal" element={<JournalPage />} />
           <Route path="/replay" element={<ReplayPage />} />
         </Routes>
+        
+        {/* M-PWA-3: Install CTA */}
+        <InstallCTA />
       </Layout>
     </Router>
   )
