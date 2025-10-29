@@ -1,0 +1,90 @@
+/**
+ * Custom Titlebar Styles for Window Controls Overlay
+ * 
+ * These styles ensure the custom titlebar integrates seamlessly
+ * with the native window controls on desktop platforms.
+ */
+
+/* Titlebar drag region - allows window dragging */
+[data-titlebar-drag] {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+/* Interactive elements within titlebar must opt-out of dragging */
+[data-titlebar-drag] button,
+[data-titlebar-drag] a,
+[data-titlebar-drag] input,
+[data-titlebar-drag] [data-titlebar-no-drag] {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* Titlebar safe area using CSS environment variables */
+.titlebar-safe-area {
+  padding-top: env(titlebar-area-height, 0px);
+}
+
+/* WCO-specific styles when in window-controls-overlay display mode */
+@media (display-mode: window-controls-overlay) {
+  /* Ensure body accounts for titlebar */
+  body {
+    padding-top: env(titlebar-area-height, 40px);
+  }
+
+  /* Titlebar gradient for depth */
+  .custom-titlebar {
+    background: linear-gradient(
+      180deg,
+      rgba(10, 10, 10, 0.98) 0%,
+      rgba(10, 10, 10, 0.95) 100%
+    );
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+  }
+
+  /* Titlebar text should be crisp */
+  .custom-titlebar * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Fallback for browsers that don't support WCO */
+@media not all and (display-mode: window-controls-overlay) {
+  .custom-titlebar {
+    display: none;
+  }
+
+  .titlebar-safe-area {
+    padding-top: 0;
+  }
+}
+
+/* Animation for titlebar appearance */
+.custom-titlebar {
+  animation: titlebar-fade-in 0.2s ease-out;
+}
+
+@keyframes titlebar-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover effect for titlebar interactive elements */
+.custom-titlebar button:hover {
+  background-color: rgba(6, 182, 212, 0.1);
+  transition: background-color 0.15s ease;
+}
+
+/* Focus states for accessibility */
+.custom-titlebar button:focus-visible {
+  outline: 2px solid rgba(6, 182, 212, 0.5);
+  outline-offset: 2px;
+}
