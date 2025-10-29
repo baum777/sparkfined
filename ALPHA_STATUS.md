@@ -262,3 +262,29 @@ All modules (M5-M10) successfully implemented and tested.
 ---
 
 **Phase Progress:** 5/5 modules complete (100%) ✅
+
+---
+
+## PWA Patch - Main-Launch Ready 🚀
+
+**Date:** 2025-10-29  
+**Status:** 11/12 PWA modules complete
+
+| Module | Status | Files | DoD |
+|--------|--------|-------|-----|
+| M-PWA-1: Manifest & Icons | ✅ | 3 | Installable |
+| M-PWA-2: Service Worker | ✅ | 2 | Offline < 400ms |
+| M-PWA-3: Install-UX (A2HS) | ✅ | 3 | CTA works |
+| M-PWA-4: Desktop Titlebar (WCO) | ✅ | 4 | Custom titlebar |
+| M-PWA-5: Settings Toggle | ✅ | 3 | Toggle works |
+| M-PWA-6: iOS A2HS | ✅ | 3 | iOS installable |
+| M-PWA-7: Provider Badges | ✅ | 1 | Badges visible |
+| M-PWA-8: Install Telemetry | ✅ | 1 | Metrics logged |
+| M-PWA-9: Security/CSP | ✅ | 2 | No violations |
+| M-PWA-10: Lighthouse CI | ✅ | 2 | Audit configured |
+| M-PWA-11: E2E PWA Tests | ✅ | 1 | 11 tests |
+| M-PWA-12: Docs | ⏳ | - | In progress |
+
+**Tests Added:** 89+ unit tests + 11 E2E PWA tests  
+**New Features:** Install CTA, Custom Titlebar, iOS support, Status badges  
+**Security:** CSP headers, API key protection, No PII
