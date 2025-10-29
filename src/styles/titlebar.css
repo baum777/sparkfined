@@ -1,0 +1,151 @@
+/**
+ * M-PWA-4: Desktop Titlebar (Window Controls Overlay)
+ * Custom titlebar for installed desktop PWA
+ */
+
+/* Titlebar container */
+.titlebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  
+  /* Use CSS environment variables for WCO geometry */
+  height: env(titlebar-area-height, 36px);
+  padding-left: calc(env(titlebar-area-x, 0px) + 8px);
+  padding-top: env(titlebar-area-y, 0px);
+  width: env(titlebar-area-width, 100%);
+  
+  /* Layout */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  /* Styling */
+  background: #0A0A0A;
+  border-bottom: 1px solid #1f2937;
+  
+  /* Make draggable */
+  -webkit-app-region: drag;
+  app-region: drag;
+  user-select: none;
+}
+
+/* Non-draggable interactive elements */
+.titlebar .btn,
+.titlebar button,
+.titlebar a,
+.titlebar input,
+.titlebar select {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* Titlebar content */
+.titlebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f3f4f6;
+  padding-right: 12px;
+  border-right: 1px solid #374151;
+}
+
+.titlebar-logo svg {
+  width: 16px;
+  height: 16px;
+}
+
+.titlebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.titlebar-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.titlebar-btn:hover {
+  background: #1f2937;
+  color: #f3f4f6;
+}
+
+.titlebar-btn:active {
+  background: #374151;
+}
+
+/* Badge styling in titlebar */
+.titlebar-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: 3px;
+  letter-spacing: 0.025em;
+}
+
+.titlebar-badge.provider {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.titlebar-badge.ai {
+  background: #4c1d95;
+  color: #c4b5fd;
+}
+
+.titlebar-badge.offline {
+  background: #991b1b;
+  color: #fca5a5;
+}
+
+.titlebar-badge.online {
+  background: #065f46;
+  color: #6ee7b7;
+}
+
+/* Hide titlebar when WCO is not active */
+.titlebar.hidden {
+  display: none;
+}
+
+/* Adjust main content when titlebar is visible */
+body.has-titlebar {
+  padding-top: env(titlebar-area-height, 36px);
+}
+
+body.has-titlebar .layout-container {
+  margin-top: env(titlebar-area-height, 36px);
+}
+
+/* Responsive: Hide on mobile */
+@media (max-width: 768px) {
+  .titlebar {
+    display: none;
+  }
+  
+  body.has-titlebar {
+    padding-top: 0;
+  }
+  
+  body.has-titlebar .layout-container {
+    margin-top: 0;
+  }
+}

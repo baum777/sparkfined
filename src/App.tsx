@@ -5,11 +5,15 @@ import JournalPage from './pages/JournalPage'
 import ReplayPage from './pages/ReplayPage'
 import { InstallCTA } from './components/InstallCTA'
 import { IOSInstallHint } from './components/IOSInstallHint'
+import { Titlebar } from './components/Titlebar'
 import './styles/App.css'
 
 function App() {
   return (
     <Router>
+      {/* M-PWA-4: Desktop Titlebar (Window Controls Overlay) */}
+      <Titlebar enabled={true} />
+      
       <Layout>
         <Routes>
           <Route path="/" element={<AnalyzePage />} />
