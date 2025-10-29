@@ -216,8 +216,6 @@ export default async function handler(
     }
 
     // Call appropriate AI provider with timeout
-    let content: string
-
     const aiCall = (async () => {
       switch (provider) {
         case 'openai':
@@ -231,9 +229,9 @@ export default async function handler(
       }
     })()
 
-    content = await fetchWithTimeout(aiCall, TIMEOUT_MS)
+    const content = await fetchWithTimeout(aiCall, TIMEOUT_MS)
 
-    const processingTime = Date.now() - startTime
+    const _processingTime = Date.now() - startTime
 
     return res.status(200).json({
       success: true,

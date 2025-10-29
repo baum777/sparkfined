@@ -10,7 +10,7 @@ export function IOSInstallHint() {
 
   useEffect(() => {
     // Detect iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window)
     
     // Check if already in standalone mode (installed)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches

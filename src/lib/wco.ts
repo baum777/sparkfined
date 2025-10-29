@@ -3,12 +3,24 @@
  * Feature detection for desktop PWA titlebar customization
  */
 
+interface WindowControlsOverlay {
+  visible: boolean
+  getTitlebarAreaRect?: () => { x: number; y: number; width: number; height: number }
+  addEventListener: (event: string, callback: () => void) => void
+  removeEventListener: (event: string, callback: () => void) => void
+}
+
+interface NavigatorWithWCO extends Navigator {
+  windowControlsOverlay?: WindowControlsOverlay
+}
+
 /**
  * Check if Window Controls Overlay is supported and active
  */
 export const hasWCO = Boolean(
   typeof navigator !== 'undefined' &&
-  (navigator as any).windowControlsOverlay?.visible
+  'windowControlsOverlay' in navigator &&
+  (navigator as NavigatorWithWCO).windowControlsOverlay?.visible
 )
 
 /**
@@ -19,7 +31,7 @@ export function getWCOGeometry() {
     return null
   }
 
-  const wco = (navigator as any).windowControlsOverlay
+  const wco = (navigator as NavigatorWithWCO).windowControlsOverlay!
   
   return {
     visible: wco.visible,
@@ -38,7 +50,7 @@ export function onWCOGeometryChange(callback: () => void) {
     return () => {}
   }
 
-  const wco = (navigator as any).windowControlsOverlay
+  const wco = (navigator as NavigatorWithWCO).windowControlsOverlay!
   wco.addEventListener('geometrychange', callback)
 
   return () => {

@@ -107,7 +107,7 @@ function calculateMatchConfidence(
  */
 function extractRSI(text: string): OCRIndicatorValue[] {
   const results: OCRIndicatorValue[] = []
-  const rsiPattern = /RSI[:\s\(]*(\d+)(?:\))?[:\s]*(\d+(?:\.\d+)?)/gi
+  const rsiPattern = /RSI[:\s(]*(\d+)(?:)?[:\s]*(\d+(?:\.\d+)?)/gi
 
   let match
   while ((match = rsiPattern.exec(text)) !== null) {
@@ -167,7 +167,7 @@ function extractBollinger(text: string): OCRIndicatorValue[] {
  */
 function extractEMA(text: string): OCRIndicatorValue[] {
   const results: OCRIndicatorValue[] = []
-  const emaPattern = /EMA[\s\(]*(\d+)[\s\)]*:?\s*([\d,.]+)/gi
+  const emaPattern = /EMA[\s(]*(\d+)[\s)]*:?\s*([\d,.]+)/gi
 
   let match
   while ((match = emaPattern.exec(text)) !== null) {
@@ -195,7 +195,7 @@ function extractEMA(text: string): OCRIndicatorValue[] {
  */
 function extractSMA(text: string): OCRIndicatorValue[] {
   const results: OCRIndicatorValue[] = []
-  const smaPattern = /SMA[\s\(]*(\d+)[\s\)]*:?\s*([\d,.]+)/gi
+  const smaPattern = /SMA[\s(]*(\d+)[\s)]*:?\s*([\d,.]+)/gi
 
   let match
   while ((match = smaPattern.exec(text)) !== null) {
@@ -224,7 +224,7 @@ function extractSMA(text: string): OCRIndicatorValue[] {
 function extractPrice(text: string): OCRIndicatorValue[] {
   const results: OCRIndicatorValue[] = []
   // Enhanced price pattern: "Price: $42,850.00" or "$42850" or "42850.50"
-  const pricePattern = /(?:price[:\s]*)?[\$]?([\d,]+\.?\d*)/gi
+  const pricePattern = /(?:price[:\s]*)?[$]?([\d,]+\.?\d*)/gi
 
   let match
   const matches: Array<{ value: number; index: number; length: number; hasLabel: boolean }> = []
@@ -412,7 +412,7 @@ function parseIndicators(text: string): OCRResult['indicators'] {
   const indicators: OCRResult['indicators'] = {}
 
   // RSI pattern: "RSI: 72" or "RSI 72" or "RSI(14): 72"
-  const rsiMatch = text.match(/RSI[:\s\(]*(\d+)/)
+  const rsiMatch = text.match(/RSI[:\s(]*(\d+)/)
   if (rsiMatch) {
     indicators.rsi = parseInt(rsiMatch[1], 10)
   }
@@ -427,7 +427,7 @@ function parseIndicators(text: string): OCRResult['indicators'] {
   }
 
   // EMA values: "EMA(20): 42850" or "EMA 20: 42850"
-  const emaMatches = text.matchAll(/EMA[\s\(]*(\d+)[\s\)]*:?\s*([\d,.]+)/gi)
+  const emaMatches = text.matchAll(/EMA[\s(]*(\d+)[\s)]*:?\s*([\d,.]+)/gi)
   const emaValues: number[] = []
   for (const match of emaMatches) {
     const value = parseFloat(match[2].replace(/,/g, ''))
@@ -440,7 +440,7 @@ function parseIndicators(text: string): OCRResult['indicators'] {
   }
 
   // SMA values: similar to EMA
-  const smaMatches = text.matchAll(/SMA[\s\(]*(\d+)[\s\)]*:?\s*([\d,.]+)/gi)
+  const smaMatches = text.matchAll(/SMA[\s(]*(\d+)[\s)]*:?\s*([\d,.]+)/gi)
   const smaValues: number[] = []
   for (const match of smaMatches) {
     const value = parseFloat(match[2].replace(/,/g, ''))
@@ -453,7 +453,7 @@ function parseIndicators(text: string): OCRResult['indicators'] {
   }
 
   // Price: "Price: $42,850.00" or "$42850"
-  const priceMatch = text.match(/[\$]?([\d,]+\.?\d*)/i)
+  const priceMatch = text.match(/[$]?([\d,]+\.?\d*)/i)
   if (priceMatch) {
     const price = parseFloat(priceMatch[1].replace(/,/g, ''))
     if (!isNaN(price) && price > 0) {

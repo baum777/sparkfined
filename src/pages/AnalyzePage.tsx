@@ -184,7 +184,7 @@ export default function AnalyzePage() {
           symbol: dexData.symbol || 'Unknown',
           name: dexData.name || 'Unknown Token',
           address: ca,
-          chain: (dexData.chain as any) || 'solana',
+          chain: (dexData.chain as 'solana' | 'ethereum' | 'bsc' | 'arbitrum' | 'base' | 'other') || 'solana',
           price: dexData.price,
           priceChange24h: dexData.priceChange24h,
           volume24h: dexData.vol24,

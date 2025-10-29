@@ -165,12 +165,11 @@ async function fetchMoralisPrice(
 /**
  * Fetch pair/liquidity data from Moralis (EVM only)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchMoralisPair(
   pairAddress: string,
   chain: ChainId,
   config: AdapterConfig
-): Promise<any> {
+): Promise<unknown> {
   if (chain === 'solana') {
     // Moralis Solana API doesn't have pair endpoint yet
     return null
