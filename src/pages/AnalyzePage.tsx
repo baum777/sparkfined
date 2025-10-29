@@ -3,6 +3,7 @@ import DropZone from '@/components/DropZone'
 import ViewStateHandler from '@/components/ViewStateHandler'
 import SaveTradeModal from '@/components/SaveTradeModal'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
+import { StatusBadges, AIOptinBanner } from '@/components/StatusBadges'
 import { ViewState } from '@/types/viewState'
 import { useEventLogger } from '@/hooks/useEventLogger'
 import { compressImage } from '@/lib/imageUtils'
@@ -12,7 +13,13 @@ export default function AnalyzePage() {
   const [isSaveTradeOpen, setIsSaveTradeOpen] = useState(false)
   const [contractAddress, setContractAddress] = useState<string | null>(null)
   const [showSkeleton, setShowSkeleton] = useState(false)
+  const [showAIBanner, setShowAIBanner] = useState(false)
   const { log } = useEventLogger()
+  
+  // Demo: AI enabled state (would come from settings/context in production)
+  const [aiEnabled] = useState(true)
+  // Demo: Snapshot timestamp (would come from actual data fetch)
+  const [snapshotTimestamp] = useState(Date.now() - 3 * 60 * 1000) // 3 minutes ago
 
   const handleDropZoneReady = async ({ file, ca }: { file?: File; ca?: string }) => {
     if (file) {
@@ -84,6 +91,19 @@ export default function AnalyzePage() {
 
   const resultContent = (
     <div className="p-4 space-y-4 max-w-2xl mx-auto animate-slide-up">
+      {/* Status Badges */}
+      <StatusBadges 
+        provider="DexScreener" 
+        aiEnabled={aiEnabled}
+        snapshotTimestamp={snapshotTimestamp}
+        className="mb-4"
+      />
+      
+      {/* AI Opt-in Banner */}
+      {showAIBanner && (
+        <AIOptinBanner onDismiss={() => setShowAIBanner(false)} />
+      )}
+      
       {/* Primary Analysis Card */}
       <div className="card">
         <div className="flex items-center justify-between mb-5">
