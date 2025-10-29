@@ -515,8 +515,7 @@ export async function getMoralisToken(address: string): Promise<TokenSnapshot> {
   const config = DEFAULT_CONFIG
 
   try {
-    // Fetch from Moralis API via edge proxy
-    const url = `/api/moralis/token/${address}`
+    // Fetch from Moralis API (internal function uses edge proxy when in browser)
     const raw = await fetchMoralisPrice(address, 'solana', config)
 
     // Map to TokenSnapshot with defensive extraction

@@ -41,6 +41,21 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
+          // Alpha M4: Edge proxies (/api/dexpaprika, /api/moralis) - 300s SWR cache
+          {
+            urlPattern: /^\/api\/(dexpaprika|moralis)\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'token-snapshot-cache',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 300, // 5 minutes = 300s
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
           // Dexscreener API - Stale-While-Revalidate for fast perceived performance
           {
             urlPattern: /^https:\/\/api\.dexscreener\.com\/.*/i,
