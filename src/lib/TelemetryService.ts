@@ -357,7 +357,7 @@ class TelemetryServiceClass {
 // Singleton instance
 export const Telemetry = new TelemetryServiceClass()
 
-// Standard event names (extended for M8)
+// Standard event names (extended for M8 + M-PWA-8)
 export const TelemetryEvents = {
   AI_TEASER_MS: 'ai_teaser_ms',
   PROVIDER_FALLBACK: 'provider_fallback',
@@ -375,6 +375,16 @@ export const TelemetryEvents = {
   AI_PROVIDER_FALLBACK: 'ai_provider_fallback',
   ERROR_RATE: 'error_rate',
   OFFLINE_MODE: 'offline_mode',
+
+  // M-PWA-8: Install & WCO metrics
+  INSTALL_PROMPT_AVAILABLE: 'install_prompt_available',
+  INSTALL_PROMPT_SHOWN: 'install_prompt_shown',
+  INSTALL_PROMPT_ACCEPTED: 'install_prompt_accepted',
+  INSTALL_PROMPT_DISMISSED: 'install_prompt_dismissed',
+  PWA_INSTALLED: 'pwa_installed',
+  PWA_ALREADY_INSTALLED: 'pwa_already_installed',
+  WCO_VISIBLE: 'wco_visible',
+  WCO_GEOMETRY_CHANGE: 'wco_geometry_change',
 } as const
 
 // Register performance budgets
