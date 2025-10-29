@@ -13,23 +13,63 @@ export default defineConfig({
       manifest: {
         name: 'Sparkfined TA-PWA',
         short_name: 'Sparkfined',
-        description: 'Technical Analysis Progressive Web App',
-        theme_color: '#1e293b',
-        background_color: '#0f172a',
+        description: 'Technical Analysis Progressive Web App - Read the tape. Carve the candle.',
+        theme_color: '#0A0A0A',
+        background_color: '#0A0A0A',
         display: 'standalone',
+        display_override: ['window-controls-overlay', 'standalone'],
+        orientation: 'any',
+        scope: '/',
         start_url: '/',
+        id: '/',
+        categories: ['finance', 'productivity', 'utilities'],
         icons: [
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'Analyze Chart',
+            short_name: 'Analyze',
+            description: 'Upload and analyze a trading chart',
+            url: '/analyze',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'Journal',
+            short_name: 'Journal',
+            description: 'View your trading journal',
+            url: '/journal',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'Replay',
+            short_name: 'Replay',
+            description: 'Replay saved analysis',
+            url: '/replay',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
           }
         ]
       },
