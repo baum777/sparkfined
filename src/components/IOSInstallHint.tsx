@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logEvent } from '../lib/telemetry';
 
 /**
  * iOS Install Hint Component
@@ -41,8 +42,8 @@ export function IOSInstallHint() {
     
     console.log('[iOS Install Hint] Dismissed by user');
     
-    // TODO: Log telemetry
-    // logEvent('ios_install_hint_dismissed', {});
+    // Log telemetry
+    logEvent('install_prompt_dismissed', { platform: 'iOS' });
   };
 
   if (!visible) {

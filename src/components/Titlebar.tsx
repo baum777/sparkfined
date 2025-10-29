@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { isWCOSupported, isWCOVisible, onWCOGeometryChange } from '../lib/pwa/wco';
 import { useSettings } from '../hooks/useSettings';
+import { logEvent } from '../lib/telemetry';
 
 interface TitlebarProps {
   title?: string;
@@ -33,8 +34,10 @@ export function Titlebar({ title = 'Sparkfined', className = '' }: TitlebarProps
       if (supported && visible) {
         console.log('[Titlebar] WCO is active');
         // Log telemetry event
-        // TODO: Wire up when telemetry system is ready
-        // logEvent('wco_visible', { visible: true });
+        logEvent(visible ? 'wco_visible' : 'wco_hidden', { 
+          supported,
+          enabled 
+        });
       }
     };
 

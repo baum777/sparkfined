@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logEvent } from '../lib/telemetry';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -53,9 +54,10 @@ export function useInstallPrompt(): UseInstallPromptReturn {
 
       // Log telemetry: install_prompt event
       console.log('[PWA] Install prompt available');
-      
-      // TODO: Add telemetry logging when telemetry system is implemented
-      // logEvent('install_prompt', { platform: getPlatform() });
+      logEvent('install_prompt', { 
+        platform: navigator.platform,
+        userAgent: navigator.userAgent.substring(0, 50) // Truncated for privacy
+      });
     };
 
     // Listen for successful installation
@@ -67,8 +69,9 @@ export function useInstallPrompt(): UseInstallPromptReturn {
       console.log('[PWA] App successfully installed');
       
       // Log telemetry: installed event
-      // TODO: Add telemetry logging
-      // logEvent('installed', { platform: getPlatform() });
+      logEvent('installed', { 
+        platform: navigator.platform 
+      });
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -95,8 +98,9 @@ export function useInstallPrompt(): UseInstallPromptReturn {
     console.log(`[PWA] User ${outcome} the install prompt`);
     
     // Log telemetry: user choice
-    // TODO: Add telemetry logging
-    // logEvent('install_prompt_response', { outcome });
+    if (outcome === 'dismissed') {
+      logEvent('install_prompt_dismissed', { outcome });
+    }
 
     if (outcome === 'accepted') {
       setIsInstallable(false);
@@ -115,8 +119,7 @@ export function useInstallPrompt(): UseInstallPromptReturn {
     console.log('[PWA] Install prompt dismissed by user');
     
     // Log telemetry: dismissed
-    // TODO: Add telemetry logging
-    // logEvent('install_prompt_dismissed', {});
+    logEvent('install_prompt_dismissed', {});
   };
 
   return {
