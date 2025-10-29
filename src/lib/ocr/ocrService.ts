@@ -1,49 +1,321 @@
 /**
  * OCR Service using Tesseract.js
+ * Alpha M5: Worker Pool + Confidence Scoring Engine
  *
- * Extracts text labels from chart images
- * Target: < 1s OCR processing time
- * Regex: /RSI|Bollinger|EMA|SMA|Price|Volume/i
+ * Features:
+ * - Worker pool (2 threads) for parallel processing
+ * - Per-indicator confidence scoring (0.0–1.0)
+ * - Enhanced regex suite (RSI, BB, EMA/SMA, Price, %)
+ * - Target: < 500ms OCR processing time, confidence > 0.6
  *
- * DoD: OCR < 1s, returns at least 1 label or "none"
+ * DoD: OCR latency < 500ms, Confidence > 0.6, Tests green
  */
 
 import { createWorker, type Worker } from 'tesseract.js'
-import type { OCRResult } from '@/types/analysis'
+import type { OCRResult, OCRIndicatorValue } from '@/types/analysis'
+import { Telemetry, TelemetryEvents } from '@/lib/TelemetryService'
 
-// Singleton worker instance
-let workerInstance: Worker | null = null
+// Worker pool configuration
+const POOL_SIZE = 2
+const workerPool: Worker[] = []
+let poolInitialized = false
+let currentWorkerIndex = 0
 
 /**
- * Initialize Tesseract worker
- * Lazy-loaded on first OCR request
+ * Initialize worker pool with 2 workers
  */
-async function getWorker(): Promise<Worker> {
-  if (workerInstance) {
-    return workerInstance
+async function initializeWorkerPool(): Promise<void> {
+  if (poolInitialized) return
+
+  const initPromises = []
+
+  for (let i = 0; i < POOL_SIZE; i++) {
+    const workerPromise = createWorker('eng', 1, {
+      logger: (m) => {
+        if (import.meta.env.VITE_ENABLE_DEBUG === 'true') {
+          console.log(`[OCR Worker ${i}]`, m)
+        }
+      },
+    }).then(async (worker) => {
+      // Optimize for chart text recognition
+      await worker.setParameters({
+        tessedit_char_whitelist:
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.%:$-(),/',
+      })
+      return worker
+    })
+
+    initPromises.push(workerPromise)
   }
 
-  const worker = await createWorker('eng', 1, {
-    logger: (m) => {
-      if (import.meta.env.VITE_ENABLE_DEBUG === 'true') {
-        console.log('[OCR]', m)
-      }
-    },
-  })
+  workerPool.push(...(await Promise.all(initPromises)))
+  poolInitialized = true
+}
 
-  // Optimize for chart text recognition
-  await worker.setParameters({
-    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.%:$-',
-  })
+/**
+ * Get next available worker from pool (round-robin)
+ */
+async function getWorker(): Promise<Worker> {
+  if (!poolInitialized) {
+    await initializeWorkerPool()
+  }
 
-  workerInstance = worker
+  const worker = workerPool[currentWorkerIndex]
+  currentWorkerIndex = (currentWorkerIndex + 1) % POOL_SIZE
+
   return worker
 }
 
 /**
- * Extract text from image using OCR
+ * Calculate confidence score for a regex match
+ * Based on match quality, surrounding context, and value plausibility
+ */
+function calculateMatchConfidence(
+  text: string,
+  matchIndex: number,
+  matchLength: number,
+  expectedPattern: RegExp
+): number {
+  let confidence = 0.5 // Base confidence
+
+  // Factor 1: Match is on a word boundary (+0.2)
+  const beforeChar = text[matchIndex - 1]
+  const afterChar = text[matchIndex + matchLength]
+  if (
+    (!beforeChar || /\s/.test(beforeChar)) &&
+    (!afterChar || /\s|:/.test(afterChar))
+  ) {
+    confidence += 0.2
+  }
+
+  // Factor 2: Contains expected delimiter/separator (+0.15)
+  const matchedText = text.substring(matchIndex, matchIndex + matchLength)
+  if (/[:=\s]/.test(matchedText)) {
+    confidence += 0.15
+  }
+
+  // Factor 3: Follows expected pattern structure (+0.15)
+  if (expectedPattern.test(matchedText)) {
+    confidence += 0.15
+  }
+
+  return Math.min(confidence, 1.0)
+}
+
+/**
+ * Extract RSI value with confidence
+ */
+function extractRSI(text: string): OCRIndicatorValue[] {
+  const results: OCRIndicatorValue[] = []
+  const rsiPattern = /RSI[:\s\(]*(\d+)(?:\))?[:\s]*(\d+(?:\.\d+)?)/gi
+
+  let match
+  while ((match = rsiPattern.exec(text)) !== null) {
+    const value = parseFloat(match[2])
+    if (!isNaN(value) && value >= 0 && value <= 100) {
+      const confidence = calculateMatchConfidence(
+        text,
+        match.index,
+        match[0].length,
+        /RSI.*\d+/
+      )
+      // Adjust confidence based on value plausibility (0-100 range)
+      const adjustedConfidence = confidence * (value <= 100 ? 1.0 : 0.5)
+
+      results.push({
+        name: 'RSI',
+        value,
+        confidence: adjustedConfidence,
+      })
+    }
+  }
+
+  return results
+}
+
+/**
+ * Extract Bollinger Band status with confidence
+ */
+function extractBollinger(text: string): OCRIndicatorValue[] {
+  const results: OCRIndicatorValue[] = []
+
+  if (/bollinger.*upper/i.test(text)) {
+    const match = text.match(/bollinger.*upper/i)
+    const confidence = match
+      ? calculateMatchConfidence(text, match.index!, match[0].length, /bollinger.*upper/i)
+      : 0.6
+    results.push({ name: 'Bollinger', value: 'upper', confidence })
+  } else if (/bollinger.*lower/i.test(text)) {
+    const match = text.match(/bollinger.*lower/i)
+    const confidence = match
+      ? calculateMatchConfidence(text, match.index!, match[0].length, /bollinger.*lower/i)
+      : 0.6
+    results.push({ name: 'Bollinger', value: 'lower', confidence })
+  } else if (/bollinger.*middle/i.test(text)) {
+    const match = text.match(/bollinger.*middle/i)
+    const confidence = match
+      ? calculateMatchConfidence(text, match.index!, match[0].length, /bollinger.*middle/i)
+      : 0.6
+    results.push({ name: 'Bollinger', value: 'middle', confidence })
+  }
+
+  return results
+}
+
+/**
+ * Extract EMA values with confidence
+ */
+function extractEMA(text: string): OCRIndicatorValue[] {
+  const results: OCRIndicatorValue[] = []
+  const emaPattern = /EMA[\s\(]*(\d+)[\s\)]*:?\s*([\d,.]+)/gi
+
+  let match
+  while ((match = emaPattern.exec(text)) !== null) {
+    const value = parseFloat(match[2].replace(/,/g, ''))
+    if (!isNaN(value) && value > 0) {
+      const confidence = calculateMatchConfidence(
+        text,
+        match.index,
+        match[0].length,
+        /EMA.*\d+/
+      )
+      results.push({
+        name: `EMA(${match[1]})`,
+        value,
+        confidence,
+      })
+    }
+  }
+
+  return results
+}
+
+/**
+ * Extract SMA values with confidence
+ */
+function extractSMA(text: string): OCRIndicatorValue[] {
+  const results: OCRIndicatorValue[] = []
+  const smaPattern = /SMA[\s\(]*(\d+)[\s\)]*:?\s*([\d,.]+)/gi
+
+  let match
+  while ((match = smaPattern.exec(text)) !== null) {
+    const value = parseFloat(match[2].replace(/,/g, ''))
+    if (!isNaN(value) && value > 0) {
+      const confidence = calculateMatchConfidence(
+        text,
+        match.index,
+        match[0].length,
+        /SMA.*\d+/
+      )
+      results.push({
+        name: `SMA(${match[1]})`,
+        value,
+        confidence,
+      })
+    }
+  }
+
+  return results
+}
+
+/**
+ * Extract price with confidence
+ */
+function extractPrice(text: string): OCRIndicatorValue[] {
+  const results: OCRIndicatorValue[] = []
+  // Enhanced price pattern: "Price: $42,850.00" or "$42850" or "42850.50"
+  const pricePattern = /(?:price[:\s]*)?[\$]?([\d,]+\.?\d*)/gi
+
+  let match
+  const matches: Array<{ value: number; index: number; length: number; hasLabel: boolean }> = []
+
+  while ((match = pricePattern.exec(text)) !== null) {
+    const value = parseFloat(match[1].replace(/,/g, ''))
+    if (!isNaN(value) && value > 0) {
+      matches.push({
+        value,
+        index: match.index,
+        length: match[0].length,
+        hasLabel: /price/i.test(match[0]),
+      })
+    }
+  }
+
+  // Prefer matches with "Price" label
+  const labeledMatches = matches.filter((m) => m.hasLabel)
+  const relevantMatches = labeledMatches.length > 0 ? labeledMatches : matches.slice(0, 3)
+
+  for (const m of relevantMatches) {
+    const baseConfidence = calculateMatchConfidence(text, m.index, m.length, /price/i)
+    const confidence = m.hasLabel ? baseConfidence + 0.2 : baseConfidence
+    results.push({
+      name: 'Price',
+      value: m.value,
+      confidence: Math.min(confidence, 1.0),
+    })
+  }
+
+  return results
+}
+
+/**
+ * Extract volume with confidence
+ */
+function extractVolume(text: string): OCRIndicatorValue[] {
+  const results: OCRIndicatorValue[] = []
+  const volumePattern = /vol(?:ume)?[:\s]*([\d,.]+\s*[KMB]?)/gi
+
+  let match
+  while ((match = volumePattern.exec(text)) !== null) {
+    const confidence = calculateMatchConfidence(
+      text,
+      match.index,
+      match[0].length,
+      /vol/i
+    )
+    results.push({
+      name: 'Volume',
+      value: match[1].trim(),
+      confidence,
+    })
+  }
+
+  return results
+}
+
+/**
+ * Extract percentage values with confidence
+ */
+function extractPercentages(text: string): OCRIndicatorValue[] {
+  const results: OCRIndicatorValue[] = []
+  // Pattern: "24h: +5.3%" or "-2.1%"
+  const percentPattern = /([+-]?[\d,.]+)\s*%/gi
+
+  let match
+  while ((match = percentPattern.exec(text)) !== null) {
+    const value = parseFloat(match[1].replace(/,/g, ''))
+    if (!isNaN(value)) {
+      const confidence = calculateMatchConfidence(
+        text,
+        match.index,
+        match[0].length,
+        /[+-]?[\d.]+%/
+      )
+      results.push({
+        name: 'Percentage',
+        value,
+        confidence,
+      })
+    }
+  }
+
+  return results
+}
+
+/**
+ * Extract text from image using OCR with worker pool
  * @param imageFile - Chart image file
- * @returns OCR result with labels and indicators
+ * @returns OCR result with labels, indicators, and confidence scores
  */
 export async function extractChartText(imageFile: File | string): Promise<OCRResult> {
   const startTime = performance.now()
@@ -58,19 +330,52 @@ export async function extractChartText(imageFile: File | string): Promise<OCRRes
 
     const processingTime = performance.now() - startTime
 
+    // Log telemetry
+    Telemetry.log(TelemetryEvents.OCR_PARSE_MS, processingTime, {
+      confidence: confidence / 100,
+      textLength: text.length,
+    })
+
     // Extract labels and indicators
     const labels = extractLabels(text)
     const indicators = parseIndicators(text)
+
+    // Extract all indicator values with confidence
+    const indicatorValues: OCRIndicatorValue[] = [
+      ...extractRSI(text),
+      ...extractBollinger(text),
+      ...extractEMA(text),
+      ...extractSMA(text),
+      ...extractPrice(text),
+      ...extractVolume(text),
+      ...extractPercentages(text),
+    ]
+
+    // Calculate average confidence across all indicators
+    const avgConfidence =
+      indicatorValues.length > 0
+        ? indicatorValues.reduce((sum, ind) => sum + ind.confidence, 0) /
+          indicatorValues.length
+        : confidence / 100
+
+    // Log OCR confidence metric
+    Telemetry.log('ocr_confidence_avg', avgConfidence, {
+      indicatorCount: indicatorValues.length,
+    })
 
     return {
       text,
       confidence: confidence / 100, // Normalize to 0-1
       labels,
       indicators,
+      indicatorValues,
       processingTime,
     }
   } catch (error) {
     console.error('OCR failed:', error)
+
+    const processingTime = performance.now() - startTime
+    Telemetry.log(TelemetryEvents.OCR_PARSE_MS, processingTime, { error: true })
 
     // Return empty result on error
     return {
@@ -78,7 +383,8 @@ export async function extractChartText(imageFile: File | string): Promise<OCRRes
       confidence: 0,
       labels: [],
       indicators: {},
-      processingTime: performance.now() - startTime,
+      indicatorValues: [],
+      processingTime,
     }
   }
 }
@@ -100,13 +406,13 @@ function extractLabels(text: string): string[] {
 }
 
 /**
- * Parse indicator values from OCR text
+ * Parse indicator values from OCR text (legacy format for backward compatibility)
  */
 function parseIndicators(text: string): OCRResult['indicators'] {
   const indicators: OCRResult['indicators'] = {}
 
   // RSI pattern: "RSI: 72" or "RSI 72" or "RSI(14): 72"
-  const rsiMatch = text.match(/RSI[:\s\(]*(\d+)/i)
+  const rsiMatch = text.match(/RSI[:\s\(]*(\d+)/)
   if (rsiMatch) {
     indicators.rsi = parseInt(rsiMatch[1], 10)
   }
@@ -165,14 +471,19 @@ function parseIndicators(text: string): OCRResult['indicators'] {
 }
 
 /**
- * Batch OCR for multiple images (future enhancement)
+ * Batch OCR for multiple images using worker pool
+ * Processes images in parallel using available workers
  */
-export async function extractChartTextBatch(images: (File | string)[]): Promise<OCRResult[]> {
+export async function extractChartTextBatch(
+  images: (File | string)[]
+): Promise<OCRResult[]> {
+  // Process in parallel batches of POOL_SIZE
   const results: OCRResult[] = []
 
-  for (const image of images) {
-    const result = await extractChartText(image)
-    results.push(result)
+  for (let i = 0; i < images.length; i += POOL_SIZE) {
+    const batch = images.slice(i, i + POOL_SIZE)
+    const batchResults = await Promise.all(batch.map((image) => extractChartText(image)))
+    results.push(...batchResults)
   }
 
   return results
@@ -210,7 +521,7 @@ export async function preprocessImage(imageFile: File): Promise<Blob> {
       for (let i = 0; i < data.length; i += 4) {
         const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114
         const contrast = 1.5 // Increase contrast
-        const enhanced = ((gray - 128) * contrast + 128)
+        const enhanced = (gray - 128) * contrast + 128
 
         data[i] = enhanced // R
         data[i + 1] = enhanced // G
@@ -235,11 +546,13 @@ export async function preprocessImage(imageFile: File): Promise<Blob> {
 }
 
 /**
- * Cleanup worker on app unmount
+ * Cleanup worker pool on app unmount
  */
 export async function terminateOCR(): Promise<void> {
-  if (workerInstance) {
-    await workerInstance.terminate()
-    workerInstance = null
+  for (const worker of workerPool) {
+    await worker.terminate()
   }
+  workerPool.length = 0
+  poolInitialized = false
+  currentWorkerIndex = 0
 }

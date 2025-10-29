@@ -11,6 +11,12 @@ import type { WalletAccumulation } from '@/lib/data/walletFlow'
 /**
  * OCR Result Types
  */
+export interface OCRIndicatorValue {
+  name: string
+  value: number | string
+  confidence: number
+}
+
 export interface OCRResult {
   text: string
   confidence: number
@@ -23,6 +29,8 @@ export interface OCRResult {
     volume?: string
     price?: number
   }
+  // Enhanced: per-indicator confidence scoring
+  indicatorValues: OCRIndicatorValue[]
   processingTime: number
 }
 
