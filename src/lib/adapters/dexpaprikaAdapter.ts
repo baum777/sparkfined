@@ -20,6 +20,7 @@ import type {
   AdapterResponse,
   ChainId,
 } from '../../types/market'
+import type { TokenSnapshot } from '../../types/data'
 
 // ============================================================================
 // CONFIGURATION
@@ -353,5 +354,78 @@ export function getDexPaprikaCacheStats() {
     size: cache['cache'].size,
     maxSize: cache['maxSize'],
     ttl: cache['ttl'],
+  }
+}
+
+// ============================================================================
+// ALPHA ISSUE 2: Simplified TokenSnapshot Adapter
+// ============================================================================
+
+/**
+ * DexPaprika API raw response shape (simplified for Issue 2)
+ */
+interface DexPaprikaRawResponse {
+  symbol?: string
+  name?: string
+  priceUsd?: number
+  ohlcv?: {
+    h24?: {
+      high?: number
+      low?: number
+    }
+  }
+  volume24h?: number
+  pool?: {
+    liquidity?: number
+  }
+}
+
+/**
+ * Map DexPaprika raw response to TokenSnapshot
+ * Defensive mappings with fallbacks for missing fields
+ */
+export function mapDexPaprika(raw: DexPaprikaRawResponse, address: string): TokenSnapshot {
+  // Defensive extraction with defaults
+  const price = raw.priceUsd ?? 0
+  const high24 = raw.ohlcv?.h24?.high ?? price
+  const low24 = raw.ohlcv?.h24?.low ?? price
+  const volume24 = raw.volume24h ?? 0
+  const liquidity = raw.pool?.liquidity ?? 0
+
+  return {
+    address,
+    symbol: raw.symbol ?? 'UNKNOWN',
+    name: raw.name ?? 'Unknown Token',
+    price,
+    high24,
+    low24,
+    volume24,
+    liquidity,
+    timestamp: Date.now(),
+    provider: 'dexpaprika',
+  }
+}
+
+/**
+ * Fetch token snapshot from DexPaprika API
+ * Alpha Issue 2: Primary provider adapter
+ *
+ * @param address - Solana token address
+ * @returns TokenSnapshot with defensive mappings
+ */
+export async function getDexPaprikaToken(address: string): Promise<TokenSnapshot> {
+  const config = DEFAULT_CONFIG
+
+  try {
+    // Fetch from DexPaprika API via edge proxy
+    const url = `/api/dexpaprika/tokens/${address}`
+    const raw = await fetchWithRetry(url, config)
+
+    // Map to TokenSnapshot with defensive extraction
+    return mapDexPaprika(raw, address)
+  } catch (error) {
+    // On error, throw with descriptive message
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    throw new Error(`DexPaprika fetch failed: ${message}`)
   }
 }
