@@ -4,6 +4,7 @@ import AnalyzePage from './pages/AnalyzePage'
 import JournalPage from './pages/JournalPage'
 import ReplayPage from './pages/ReplayPage'
 import { InstallCTA } from './components/InstallCTA'
+import { IOSInstallHint } from './components/IOSInstallHint'
 import './styles/App.css'
 
 function App() {
@@ -16,8 +17,11 @@ function App() {
           <Route path="/replay" element={<ReplayPage />} />
         </Routes>
         
-        {/* M-PWA-3: Install CTA */}
+        {/* M-PWA-3: Install CTA (Desktop/Android) */}
         <InstallCTA />
+        
+        {/* M-PWA-6: iOS Install Hint */}
+        <IOSInstallHint />
       </Layout>
     </Router>
   )
