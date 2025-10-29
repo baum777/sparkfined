@@ -3,6 +3,7 @@ import Header from './components/layout/Header'
 import BottomNav from './components/layout/BottomNav'
 import OfflineIndicator from './components/OfflineIndicator'
 import { InstallCTA } from './components/InstallCTA'
+import { IOSInstallHint } from './components/IOSInstallHint'
 import { Titlebar, TitlebarSafeArea } from './components/Titlebar'
 import AnalyzePage from './pages/AnalyzePage'
 import JournalPage from './pages/JournalPage'
@@ -28,6 +29,7 @@ function App() {
             <Header />
             <OfflineIndicator />
             <InstallCTA variant="floating" />
+            <IOSInstallHint />
             
             {/* Main content area with max-width constraint */}
             <main className="flex-1 pb-20 pt-4">
