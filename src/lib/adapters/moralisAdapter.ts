@@ -20,6 +20,7 @@ import type {
   AdapterResponse,
   ChainId,
 } from '../../types/market'
+import type { TokenSnapshot } from '../../types/data'
 
 // ============================================================================
 // CONFIGURATION
@@ -442,5 +443,87 @@ export function getMoralisCacheStats() {
     size: cache['cache'].size,
     maxSize: cache['maxSize'],
     ttl: cache['ttl'],
+  }
+}
+
+// ============================================================================
+// ALPHA ISSUE 3: Simplified TokenSnapshot Adapter
+// ============================================================================
+
+/**
+ * Moralis API raw response shape (simplified for Issue 3)
+ */
+interface MoralisRawResponse {
+  tokenSymbol?: string
+  tokenName?: string
+  usdPrice?: number | string
+  '24hrPercentChange'?: number | string
+  volume24h?: number | string
+  pairTotalLiquidityUsd?: number | string
+}
+
+/**
+ * Map Moralis raw response to TokenSnapshot
+ * Defensive mappings with fallbacks for missing fields
+ */
+export function mapMoralis(raw: MoralisRawResponse, address: string): TokenSnapshot {
+  // Parse numeric fields defensively (convert NaN to 0)
+  const price = parseFloat(raw.usdPrice?.toString() || '0') || 0
+  const change24h = parseFloat(raw['24hrPercentChange']?.toString() || '0') || 0
+  const volume24 = parseFloat(raw.volume24h?.toString() || '0') || 0
+  const liquidity = parseFloat(raw.pairTotalLiquidityUsd?.toString() || '0') || 0
+
+  // Estimate high/low from price and 24h change
+  // If price went up by X%, high is current, low is price / (1 + X%)
+  // If price went down by X%, low is current, high is price / (1 - X%)
+  const changeRatio = change24h / 100
+  let high24 = price
+  let low24 = price
+
+  if (changeRatio > 0) {
+    // Price increased
+    high24 = price
+    low24 = price / (1 + changeRatio)
+  } else if (changeRatio < 0) {
+    // Price decreased
+    high24 = price / (1 + changeRatio) // Will be higher since changeRatio is negative
+    low24 = price
+  }
+
+  return {
+    address,
+    symbol: raw.tokenSymbol ?? 'UNKNOWN',
+    name: raw.tokenName ?? 'Unknown Token',
+    price,
+    high24,
+    low24,
+    volume24,
+    liquidity,
+    timestamp: Date.now(),
+    provider: 'moralis',
+  }
+}
+
+/**
+ * Fetch token snapshot from Moralis API
+ * Alpha Issue 3: Secondary/fallback provider adapter
+ *
+ * @param address - Solana token address
+ * @returns TokenSnapshot with defensive mappings
+ */
+export async function getMoralisToken(address: string): Promise<TokenSnapshot> {
+  const config = DEFAULT_CONFIG
+
+  try {
+    // Fetch from Moralis API via edge proxy
+    const url = `/api/moralis/token/${address}`
+    const raw = await fetchMoralisPrice(address, 'solana', config)
+
+    // Map to TokenSnapshot with defensive extraction
+    return mapMoralis(raw, address)
+  } catch (error) {
+    // On error, throw with descriptive message
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    throw new Error(`Moralis fetch failed: ${message}`)
   }
 }
