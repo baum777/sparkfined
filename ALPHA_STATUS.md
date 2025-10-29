@@ -13,7 +13,7 @@
 | M5 - OCR Stabilization | ✅ Complete | 15/15 ✓ | ✅ Yes | Worker pool (2 threads), confidence scoring, <500ms target |
 | M7 - AI Integration | ✅ Complete | 17/17 ✓ | ✅ Yes | Edge proxy, timeout/fallback, prompt templates, <3s target |
 | M8 - Telemetry | ✅ Complete | 23/23 ✓ | ✅ Yes | Extended metrics, error pipeline, export API |
-| M9 - E2E Setup | ⏳ Pending | - | - | Playwright tests, CI integration |
+| M9 - E2E Setup | ✅ Complete | ✓ | ✅ Yes | Playwright config, happy-path test, CI integration |
 | M10 - Security & Review | ⏳ Pending | - | - | Edge proxy review, dependency audit |
 
 ---
@@ -127,9 +127,51 @@
 
 ---
 
+## M9 - E2E Setup ✅
+
+**Completed:** 2025-10-29
+
+### Features Implemented
+- ✅ Playwright configuration (`playwright.config.ts`)
+- ✅ Happy-path E2E test (`alpha-flow.spec.ts`)
+  - Upload → Analyze → Journal Save → Replay Open
+- ✅ Error handling test (invalid file)
+- ✅ Performance test (analysis within budget)
+- ✅ Offline capability test
+- ✅ GitHub Actions CI workflow (`.github/workflows/ci.yml`)
+- ✅ Package.json scripts (`test:e2e`, `test:e2e:headed`, `test:e2e:ui`)
+
+### Tests
+- ✅ Complete workflow test (upload → journal → replay)
+- ✅ Error handling (invalid file upload)
+- ✅ Performance validation (< 6s budget)
+- ✅ Offline mode test
+
+### CI Integration
+- ✅ Lint & Typecheck job (< 5 min)
+- ✅ Unit tests job (< 10 min)
+- ✅ E2E tests job (< 10 min)
+- ✅ Build job with bundle size check (< 85 KB target)
+- ✅ Artifact uploads (coverage, playwright report, dist)
+
+### Configuration
+- Playwright config with Chromium
+- Web server auto-start for tests
+- Retry on failure (CI only)
+- HTML + list reporters
+- Screenshot/trace on failure
+
+### Files Created
+- `playwright.config.ts` - Playwright configuration (NEW)
+- `tests/e2e/alpha-flow.spec.ts` - Happy-path test (NEW)
+- `.github/workflows/ci.yml` - CI workflow (UPDATED)
+- `package.json` - Added Playwright + scripts (UPDATED)
+
+---
+
 ## Next Steps
 
-1. **M9 - E2E Setup** (Next)
+1. **M10 - Security & Review** (Final)
    - Enhance OpenAI/Grok adapter
    - Edge proxy setup (`/api/ai/analyze`)
    - Prompt template optimization
@@ -177,4 +219,4 @@
 
 ---
 
-**Phase Progress:** 3/5 modules complete (60%)
+**Phase Progress:** 4/5 modules complete (80%)
