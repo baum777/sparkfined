@@ -74,12 +74,35 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        // Pre-cache app shell for instant offline access
+        // Precache app shell - all critical assets for offline startup
+        globPatterns: [
+          '**/*.{js,css,html,ico,svg,woff,woff2}',
+          'pwa-*.png',
+          'apple-touch-icon.png'
+        ],
+        // Instant service worker activation
+        skipWaiting: true,
+        clientsClaim: true,
+        // Offline fallback for navigation requests
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/],
+        navigateFallbackDenylist: [/^\/api/, /^\/auth/],
         runtimeCaching: [
-          // Dexscreener API - Stale-While-Revalidate for fast perceived performance
+          // Local API routes - StaleWhileRevalidate for fast UX
+          {
+            urlPattern: /^\/api\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'local-api-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 600, // 10 minutes
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Dexscreener API - StaleWhileRevalidate for fast perceived performance
           {
             urlPattern: /^https:\/\/api\.dexscreener\.com\/.*/i,
             handler: 'StaleWhileRevalidate',
@@ -94,7 +117,7 @@ export default defineConfig({
               },
             },
           },
-          // Other external APIs
+          // Other external APIs - NetworkFirst with timeout
           {
             urlPattern: /^https:\/\/api\.*/i,
             handler: 'NetworkFirst',
@@ -104,6 +127,18 @@ export default defineConfig({
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 300, // 5 minutes
+              },
+            },
+          },
+          // Images - CacheFirst for performance
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'image-cache',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 2592000, // 30 days
               },
             },
           },
