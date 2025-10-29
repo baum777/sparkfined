@@ -7,6 +7,7 @@ import { Titlebar, TitlebarSafeArea } from './components/Titlebar'
 import AnalyzePage from './pages/AnalyzePage'
 import JournalPage from './pages/JournalPage'
 import ReplayPage from './pages/ReplayPage'
+import SettingsPage from './pages/SettingsPage'
 import './styles/App.css'
 import './styles/titlebar.css'
 
@@ -31,11 +32,13 @@ function App() {
             {/* Main content area with max-width constraint */}
             <main className="flex-1 pb-20 pt-4">
               <div className="container mx-auto px-4 max-w-container">
-                <Routes>
-                  <Route path="/" element={<AnalyzePage />} />
-                  <Route path="/journal" element={<JournalPage />} />
-                  <Route path="/replay" element={<ReplayPage />} />
-                </Routes>
+              <Routes>
+                <Route path="/" element={<AnalyzePage />} />
+                <Route path="/analyze" element={<AnalyzePage />} />
+                <Route path="/journal" element={<JournalPage />} />
+                <Route path="/replay" element={<ReplayPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Routes>
               </div>
             </main>
             

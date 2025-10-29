@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { isWCOSupported, isWCOVisible, onWCOGeometryChange } from '../lib/pwa/wco';
+import { useSettings } from '../hooks/useSettings';
 
 interface TitlebarProps {
   title?: string;
@@ -15,16 +16,19 @@ interface TitlebarProps {
  * - Custom branding and title
  * - Graceful fallback when WCO not available
  * - Responsive to geometry changes
+ * - Respects user settings toggle
  */
 export function Titlebar({ title = 'Sparkfined', className = '' }: TitlebarProps) {
   const [wcoActive, setWcoActive] = useState(false);
+  const { settings } = useSettings();
 
   useEffect(() => {
     // Check initial WCO state
     const checkWCO = () => {
       const supported = isWCOSupported();
       const visible = isWCOVisible();
-      setWcoActive(supported && visible);
+      const enabled = settings.customTitlebarEnabled;
+      setWcoActive(supported && visible && enabled);
 
       if (supported && visible) {
         console.log('[Titlebar] WCO is active');
@@ -54,7 +58,7 @@ export function Titlebar({ title = 'Sparkfined', className = '' }: TitlebarProps
       unsubscribe();
       mediaQuery.removeEventListener('change', handleDisplayModeChange);
     };
-  }, []);
+  }, [settings.customTitlebarEnabled]);
 
   // Don't render if WCO is not active
   if (!wcoActive) {

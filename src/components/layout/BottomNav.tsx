@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { ChartBarIcon, BookOpenIcon, PlayIcon } from '@heroicons/react/24/outline'
+import { ChartBarIcon, BookOpenIcon, PlayIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 
 const navItems = [
   { path: '/', label: 'Analyze', icon: ChartBarIcon },
   { path: '/journal', label: 'Journal', icon: BookOpenIcon },
   { path: '/replay', label: 'Replay', icon: PlayIcon },
+  { path: '/settings', label: 'Settings', icon: Cog6ToothIcon },
 ]
 
 export default function BottomNav() {
