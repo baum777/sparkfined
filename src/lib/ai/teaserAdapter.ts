@@ -1,16 +1,22 @@
 /**
- * AI Teaser Adapter
+ * AI Teaser Adapter - M7 Enhanced
  *
- * Orchestrates AI-powered analysis from multiple providers:
+ * Orchestrates AI-powered analysis from multiple providers via Edge proxy:
  * - none → Heuristic Fallback
  * - openai → GPT-4o-mini Vision
  * - grok → Grok Vision
- * - anthropic → Claude 4.5 Reasoning (Text)
+ * - anthropic → Claude 4.5 Sonnet
  *
- * DoD: Response < 2s, UI non-blocking
+ * Features:
+ * - Edge proxy for API key protection
+ * - 3s timeout (never blocks UI)
+ * - Automatic fallback to heuristic
+ * - Telemetry integration
+ * - Response validation
+ *
+ * DoD: Response < 3s, Fallback works, Valid JSON
  */
 
-import OpenAI from 'openai'
 import type {
   AITeaserAnalysis,
   OCRResult,
@@ -19,6 +25,8 @@ import type {
   HeuristicAnalysis,
 } from '@/types/analysis'
 import { calculateHeuristic, heuristicToTeaser } from '@/lib/analysis/heuristicEngine'
+import { buildSystemPrompt, buildUserPrompt, validateAIResponse } from './prompts/taPrompt'
+import { Telemetry, TelemetryEvents } from '@/lib/TelemetryService'
 
 export type AIProvider = 'none' | 'openai' | 'grok' | 'anthropic'
 
@@ -31,10 +39,8 @@ export interface TeaserPayload {
   heuristic?: HeuristicAnalysis
 }
 
-const AI_PROVIDER = (import.meta.env.ANALYSIS_AI_PROVIDER || 'none') as AIProvider
-const OPENAI_API_KEY = import.meta.env.OPENAI_API_KEY || ''
-const GROK_API_KEY = import.meta.env.GROK_API_KEY || ''
-const ANTHROPIC_API_KEY = import.meta.env.ANTHROPIC_API_KEY || ''
+const AI_PROVIDER = (import.meta.env.VITE_ANALYSIS_AI_PROVIDER || 'none') as AIProvider
+const TIMEOUT_MS = 3000
 
 /**
  * Main entry point for AI teaser analysis
@@ -48,15 +54,16 @@ export async function getTeaserAnalysis(
   try {
     let result: AITeaserAnalysis
 
+    // Route to appropriate provider
     switch (provider) {
       case 'openai':
-        result = await getOpenAITeaser(payload)
+        result = await getAITeaser(payload, 'openai')
         break
       case 'grok':
-        result = await getGrokTeaser(payload)
+        result = await getAITeaser(payload, 'grok')
         break
       case 'anthropic':
-        result = await getClaudeTeaser(payload)
+        result = await getAITeaser(payload, 'anthropic')
         break
       case 'none':
       default:
@@ -64,12 +71,30 @@ export async function getTeaserAnalysis(
         break
     }
 
-    result.processingTime = performance.now() - startTime
+    const processingTime = performance.now() - startTime
+    result.processingTime = processingTime
+
+    // Log telemetry
+    Telemetry.log(TelemetryEvents.AI_TEASER_MS, processingTime, {
+      provider: result.provider,
+      confidence: result.confidence,
+    })
+
     return result
   } catch (error) {
     console.error('AI Teaser failed, falling back to heuristic:', error)
+
+    // Log fallback event
+    Telemetry.log(TelemetryEvents.PROVIDER_FALLBACK, 1, {
+      from: provider,
+      to: 'heuristic',
+      reason: error instanceof Error ? error.message : 'unknown',
+    })
+
     // Always fallback to heuristic on error
-    return getHeuristicTeaser(payload)
+    const fallback = await getHeuristicTeaser(payload)
+    fallback.processingTime = performance.now() - startTime
+    return fallback
   }
 }
 
@@ -107,203 +132,98 @@ async function getHeuristicTeaser(payload: TeaserPayload): Promise<AITeaserAnaly
 }
 
 /**
- * OpenAI GPT-4o-mini Vision analysis
+ * AI-powered teaser via Edge proxy
  */
-async function getOpenAITeaser(payload: TeaserPayload): Promise<AITeaserAnalysis> {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured')
+async function getAITeaser(
+  payload: TeaserPayload,
+  provider: Exclude<AIProvider, 'none'>
+): Promise<AITeaserAnalysis> {
+  const startTime = performance.now()
+
+  // Build prompts
+  const systemPrompt = buildSystemPrompt()
+  const userPrompt = buildUserPrompt(payload.dexData, payload.ocrData, payload.pumpfunData)
+
+  // Call edge proxy
+  const requestBody = {
+    provider,
+    imageDataUrl: payload.imageDataUrl,
+    systemPrompt,
+    userPrompt,
+    maxTokens: 500,
   }
 
-  const openai = new OpenAI({ apiKey: OPENAI_API_KEY, dangerouslyAllowBrowser: true })
+  // Fetch with timeout
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
-  const systemPrompt = buildSystemPrompt(payload)
-  const userPrompt = buildUserPrompt(payload)
-
-  const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-    { role: 'system', content: systemPrompt },
-  ]
-
-  // Add image if available
-  if (payload.imageDataUrl) {
-    messages.push({
-      role: 'user',
-      content: [
-        { type: 'text', text: userPrompt },
-        { type: 'image_url', image_url: { url: payload.imageDataUrl } },
-      ],
+  try {
+    const response = await fetch('/api/ai/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal,
     })
-  } else {
-    messages.push({ role: 'user', content: userPrompt })
-  }
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages,
-    temperature: 0.7,
-    max_tokens: 500,
-    response_format: { type: 'json_object' },
-  })
+    clearTimeout(timeout)
 
-  const content = response.choices[0]?.message?.content || '{}'
-  return parseAIResponse(content, 'openai')
-}
-
-/**
- * Grok Vision analysis
- */
-async function getGrokTeaser(payload: TeaserPayload): Promise<AITeaserAnalysis> {
-  if (!GROK_API_KEY) {
-    throw new Error('Grok API key not configured')
-  }
-
-  // Grok uses OpenAI-compatible API
-  const grok = new OpenAI({
-    apiKey: GROK_API_KEY,
-    baseURL: 'https://api.x.ai/v1',
-    dangerouslyAllowBrowser: true,
-  })
-
-  const systemPrompt = buildSystemPrompt(payload)
-  const userPrompt = buildUserPrompt(payload)
-
-  const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-    { role: 'system', content: systemPrompt },
-  ]
-
-  // Add image if available
-  if (payload.imageDataUrl) {
-    messages.push({
-      role: 'user',
-      content: [
-        { type: 'text', text: userPrompt },
-        { type: 'image_url', image_url: { url: payload.imageDataUrl } },
-      ],
-    })
-  } else {
-    messages.push({ role: 'user', content: userPrompt })
-  }
-
-  const response = await grok.chat.completions.create({
-    model: 'grok-vision-beta',
-    messages,
-    temperature: 0.7,
-    max_tokens: 500,
-  })
-
-  const content = response.choices[0]?.message?.content || '{}'
-  return parseAIResponse(content, 'grok')
-}
-
-/**
- * Anthropic Claude 4.5 analysis (Text only - Vision limited)
- */
-async function getClaudeTeaser(payload: TeaserPayload): Promise<AITeaserAnalysis> {
-  if (!ANTHROPIC_API_KEY) {
-    throw new Error('Anthropic API key not configured')
-  }
-
-  const systemPrompt = buildSystemPrompt(payload)
-  const userPrompt = buildUserPrompt(payload)
-
-  // Note: Using fetch for Anthropic API
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: userPrompt,
-        },
-      ],
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`Anthropic API error: ${response.status}`)
-  }
-
-  const data = await response.json()
-  const content = data.content?.[0]?.text || '{}'
-
-  return parseAIResponse(content, 'anthropic')
-}
-
-/**
- * Build system prompt for AI models
- */
-function buildSystemPrompt(_payload: TeaserPayload): string {
-  return `You are an expert crypto trading analyst specializing in Solana tokens.
-Your task is to analyze chart images and market data to provide actionable trading insights.
-
-Output MUST be valid JSON with this exact structure:
-{
-  "sr_levels": [{"label": "S1", "price": 0.000042, "type": "support"}],
-  "stop_loss": 0.00004,
-  "tp": [0.000044, 0.000046],
-  "indicators": ["RSI: 65", "Bollinger: Middle"],
-  "teaser_text": "Brief analysis summary (2-3 sentences)",
-  "confidence": 0.75
-}
-
-Focus on:
-- Support/Resistance levels (S1, S2, R1, R2)
-- Stop loss placement
-- Take profit targets (2 levels)
-- Key technical indicators
-- Brief trading recommendation
-
-Be concise and actionable. This is a quick preview, not a full report.`
-}
-
-/**
- * Build user prompt with context data
- */
-function buildUserPrompt(payload: TeaserPayload): string {
-  let prompt = 'Analyze this trading chart and provide technical analysis.\n\n'
-
-  if (payload.dexData) {
-    prompt += `Current Price: $${payload.dexData.price}\n`
-    prompt += `24h High: $${payload.dexData.high24}\n`
-    prompt += `24h Low: $${payload.dexData.low24}\n`
-    prompt += `24h Volume: $${payload.dexData.vol24}\n\n`
-  }
-
-  if (payload.ocrData && payload.ocrData.labels.length > 0) {
-    prompt += `Detected indicators: ${payload.ocrData.labels.join(', ')}\n`
-    if (payload.ocrData.indicators.rsi) {
-      prompt += `RSI: ${payload.ocrData.indicators.rsi}\n`
+    if (!response.ok) {
+      throw new Error(`AI API returned ${response.status}`)
     }
-    prompt += '\n'
+
+    const result = await response.json()
+
+    if (!result.success || !result.data) {
+      throw new Error(result.error || 'AI request failed')
+    }
+
+    const content = result.data.content
+    const parsed = parseAIResponse(content, provider)
+
+    const processingTime = performance.now() - startTime
+
+    return {
+      ...parsed,
+      processingTime,
+      provider,
+    }
+  } catch (error) {
+    clearTimeout(timeout)
+
+    // Check for timeout
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('AI request timeout (3s)')
+    }
+
+    throw error
   }
-
-  if (payload.pumpfunData) {
-    prompt += `Token: ${payload.pumpfunData.symbol}\n`
-    prompt += `Liquidity: $${payload.pumpfunData.liquidity}\n\n`
-  }
-
-  prompt += 'Provide your analysis in the specified JSON format.'
-
-  return prompt
 }
 
 /**
  * Parse AI response to AITeaserAnalysis format
  */
-function parseAIResponse(content: string, provider: AIProvider): AITeaserAnalysis {
+function parseAIResponse(
+  content: string,
+  provider: Exclude<AIProvider, 'none'>
+): Omit<AITeaserAnalysis, 'processingTime' | 'provider'> {
   try {
+    // Handle empty or undefined content
+    if (!content || typeof content !== 'string') {
+      throw new Error('Invalid content: empty or not a string')
+    }
+
     // Try to extract JSON from markdown code blocks if present
     const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/)
     const jsonStr = jsonMatch ? jsonMatch[1] : content
 
     const parsed = JSON.parse(jsonStr)
+
+    // Validate response structure
+    if (!validateAIResponse(parsed)) {
+      throw new Error('Invalid AI response structure')
+    }
 
     return {
       sr_levels: parsed.sr_levels || [],
@@ -312,12 +232,11 @@ function parseAIResponse(content: string, provider: AIProvider): AITeaserAnalysi
       indicators: parsed.indicators || [],
       teaser_text: parsed.teaser_text || 'Analysis generated',
       confidence: parsed.confidence || 0.5,
-      processingTime: 0, // Will be set by caller
-      provider: provider === 'none' ? 'heuristic' as const : provider,
     }
   } catch (error) {
     console.error('Failed to parse AI response:', error)
-    // Return minimal valid response
+
+    // Return minimal valid response on parse error
     return {
       sr_levels: [],
       stop_loss: 0,
@@ -325,8 +244,19 @@ function parseAIResponse(content: string, provider: AIProvider): AITeaserAnalysi
       indicators: [],
       teaser_text: 'Unable to parse AI response',
       confidence: 0,
-      processingTime: 0,
-      provider: provider === 'none' ? 'heuristic' as const : provider,
     }
   }
+}
+
+/**
+ * Batch teaser analysis (future enhancement)
+ */
+export async function getTeaserAnalysisBatch(
+  payloads: TeaserPayload[],
+  provider: AIProvider = AI_PROVIDER
+): Promise<AITeaserAnalysis[]> {
+  const results = await Promise.all(
+    payloads.map((payload) => getTeaserAnalysis(payload, provider))
+  )
+  return results
 }

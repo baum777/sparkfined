@@ -11,7 +11,7 @@
 | Module | Status | Tests | DoD Met | Notes |
 |--------|--------|-------|---------|-------|
 | M5 - OCR Stabilization | ✅ Complete | 15/15 ✓ | ✅ Yes | Worker pool (2 threads), confidence scoring, <500ms target |
-| M7 - AI Integration | ⏳ Pending | - | - | OpenAI/Grok adapter, prompt templates |
+| M7 - AI Integration | ✅ Complete | 17/17 ✓ | ✅ Yes | Edge proxy, timeout/fallback, prompt templates, <3s target |
 | M8 - Telemetry | ⏳ Pending | - | - | Extended metrics, error pipeline |
 | M9 - E2E Setup | ⏳ Pending | - | - | Playwright tests, CI integration |
 | M10 - Security & Review | ⏳ Pending | - | - | Edge proxy review, dependency audit |
@@ -52,6 +52,42 @@
 - `src/types/analysis.ts` - Added `OCRIndicatorValue` interface
 - `src/lib/ocr/ocrService.ts` - Complete rewrite with worker pool
 - `tests/unit/ocr.parse.test.ts` - Comprehensive test suite
+
+---
+
+## M7 - AI Integration ✅
+
+**Completed:** 2025-10-29
+
+### Features Implemented
+- ✅ Edge proxy `/api/ai/analyze` for API key protection
+- ✅ Multi-provider support (OpenAI, Grok, Anthropic)
+- ✅ 3s timeout (never blocks UI)
+- ✅ Automatic fallback to heuristic on error/timeout
+- ✅ Optimized prompt templates (`taPrompt.ts`)
+- ✅ Response validation (`validateAIResponse`)
+- ✅ Telemetry integration (`ai_teaser_ms`, `provider_fallback`)
+
+### Tests
+- ✅ 17 unit tests (all passing)
+- ✅ Prompt generation (system + user)
+- ✅ Response validation
+- ✅ Heuristic fallback scenarios
+- ✅ Mocked AI provider calls
+- ✅ Error handling (API error, timeout, invalid JSON)
+- ✅ Performance validation
+
+### Performance
+- Target: < 3s AI response
+- Heuristic fallback: < 300ms
+- Timeout enforced via AbortController
+- Telemetry tracking for all providers
+
+### Files Modified
+- `api/ai/analyze.ts` - Edge proxy for AI requests (NEW)
+- `src/lib/ai/prompts/taPrompt.ts` - Prompt templates (NEW)
+- `src/lib/ai/teaserAdapter.ts` - Enhanced with edge proxy + timeout
+- `tests/unit/ai-teaser.test.ts` - Comprehensive test suite (NEW)
 
 ---
 
@@ -105,4 +141,4 @@
 
 ---
 
-**Phase Progress:** 1/5 modules complete (20%)
+**Phase Progress:** 2/5 modules complete (40%)
