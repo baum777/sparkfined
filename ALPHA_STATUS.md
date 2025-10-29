@@ -12,7 +12,7 @@
 |--------|--------|-------|---------|-------|
 | M5 - OCR Stabilization | ✅ Complete | 15/15 ✓ | ✅ Yes | Worker pool (2 threads), confidence scoring, <500ms target |
 | M7 - AI Integration | ✅ Complete | 17/17 ✓ | ✅ Yes | Edge proxy, timeout/fallback, prompt templates, <3s target |
-| M8 - Telemetry | ⏳ Pending | - | - | Extended metrics, error pipeline |
+| M8 - Telemetry | ✅ Complete | 23/23 ✓ | ✅ Yes | Extended metrics, error pipeline, export API |
 | M9 - E2E Setup | ⏳ Pending | - | - | Playwright tests, CI integration |
 | M10 - Security & Review | ⏳ Pending | - | - | Edge proxy review, dependency audit |
 
@@ -91,9 +91,45 @@
 
 ---
 
+## M8 - Telemetry + Error Pipeline ✅
+
+**Completed:** 2025-10-29
+
+### Features Implemented
+- ✅ Extended TelemetryService with IndexedDB persistence
+- ✅ New metrics: `ai_latency`, `provider_fallbacks`, `ocr_confidence_avg`
+- ✅ Error pipeline with severity levels (low/medium/high/critical)
+- ✅ IndexedDB stores for events and errors
+- ✅ Export API `/api/export/telemetry` (JSON/CSV)
+- ✅ Performance budgets with validation
+- ✅ Privacy-first: No PII collection
+
+### Tests
+- ✅ 23 unit tests (all passing)
+- ✅ Event logging (AI, OCR, provider fallbacks)
+- ✅ Error pipeline (logging, severity, persistence)
+- ✅ Performance budgets (validation, thresholds)
+- ✅ Statistics (median, p95, avg, max)
+- ✅ Export functionality (JSON, CSV)
+- ✅ Persistence (IndexedDB fallback to memory)
+- ✅ Integration workflow tests
+
+### Performance
+- In-memory: 1000 events, 100 errors (LRU)
+- IndexedDB: Unlimited, async persistence
+- Graceful fallback when IndexedDB unavailable
+- Performance budgets enforced for all metrics
+
+### Files Modified
+- `src/lib/TelemetryService.ts` - Enhanced with IndexedDB + errors (REWRITE)
+- `api/export/telemetry.ts` - Export API (NEW)
+- `tests/unit/telemetry.enhanced.test.ts` - Comprehensive tests (NEW)
+
+---
+
 ## Next Steps
 
-1. **M7 - AI Integration** (Next)
+1. **M9 - E2E Setup** (Next)
    - Enhance OpenAI/Grok adapter
    - Edge proxy setup (`/api/ai/analyze`)
    - Prompt template optimization
@@ -141,4 +177,4 @@
 
 ---
 
-**Phase Progress:** 2/5 modules complete (40%)
+**Phase Progress:** 3/5 modules complete (60%)
