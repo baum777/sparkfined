@@ -8,68 +8,92 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
-      manifest: {
-        name: 'Sparkfined TA-PWA',
-        short_name: 'Sparkfined',
-        description: 'Technical Analysis Progressive Web App',
-        theme_color: '#1e293b',
-        background_color: '#0f172a',
-        display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
-      },
+      // M-PWA-2: Service Worker with App-Shell + Runtime Caching
+      registerType: 'prompt', // Manual update prompt (not aggressive)
+      includeAssets: [
+        'favicon.ico',
+        'apple-touch-icon.png',
+        'mask-icon.svg',
+        'pwa-192x192.png',
+        'pwa-512x512.png',
+      ],
+      // Use external manifest file
+      manifestFilename: 'manifest.webmanifest',
+      manifest: false, // Use public/manifest.webmanifest instead
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        // Pre-cache app shell for instant offline access
+        // App-Shell precaching: HTML/JS/CSS/Fonts/Icons
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg}',
+          '**/*.{woff,woff2,ttf,eot}',
+        ],
+        globIgnores: ['**/node_modules/**', '**/tests/**'],
+        
+        // Navigation fallback for SPA
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/],
+        navigateFallbackDenylist: [/^\/api/, /^\/.*\.(json|txt|xml)$/],
+        
+        // Client control (not aggressive)
+        skipWaiting: false, // Don't force update immediately
+        clientsClaim: false, // Don't take control of uncontrolled pages
+        
+        // Runtime caching strategies
         runtimeCaching: [
-          // Dexscreener API - Stale-While-Revalidate for fast perceived performance
+          // Edge API routes (/api/*) - StaleWhileRevalidate (300s)
           {
-            urlPattern: /^https:\/\/api\.dexscreener\.com\/.*/i,
+            urlPattern: /^\/api\/.*/i,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'dexscreener-cache',
+              cacheName: 'api-edge-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 300, // 5 minutes
+              },
+              cacheableResponse: {
+                statuses: [0, 200, 201],
+              },
+            },
+          },
+          // External APIs - StaleWhileRevalidate
+          {
+            urlPattern: /^https:\/\/api\.(dexscreener|moralis|dexpaprika)\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'external-api-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 86400, // 24 hours
+                maxAgeSeconds: 300, // 5 minutes
               },
               cacheableResponse: {
                 statuses: [0, 200],
               },
             },
           },
-          // Other external APIs
+          // OpenAI/Grok/Anthropic AI APIs - NetworkFirst (don't cache sensitive)
           {
-            urlPattern: /^https:\/\/api\.*/i,
+            urlPattern: /^https:\/\/api\.(openai|x\.ai|anthropic)\.com\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'api-cache',
-              networkTimeoutSeconds: 5,
+              cacheName: 'ai-api-cache',
+              networkTimeoutSeconds: 3,
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 300, // 5 minutes
+                maxEntries: 10,
+                maxAgeSeconds: 60, // 1 minute only
               },
             },
           },
-          // CDN assets (fonts, icons, etc.)
+          // Images - CacheFirst with expiration
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 2592000, // 30 days
+              },
+            },
+          },
+          // Google Fonts - CacheFirst (long expiration)
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
