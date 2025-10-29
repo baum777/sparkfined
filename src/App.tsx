@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Header from './components/layout/Header'
 import BottomNav from './components/layout/BottomNav'
 import OfflineIndicator from './components/OfflineIndicator'
+import { InstallCTA } from './components/InstallCTA'
 import AnalyzePage from './pages/AnalyzePage'
 import JournalPage from './pages/JournalPage'
 import ReplayPage from './pages/ReplayPage'
@@ -19,6 +20,7 @@ function App() {
         <div className="relative z-10 flex flex-col min-h-screen">
           <Header />
           <OfflineIndicator />
+          <InstallCTA variant="floating" />
           
           {/* Main content area with max-width constraint */}
           <main className="flex-1 pb-20 pt-4">
