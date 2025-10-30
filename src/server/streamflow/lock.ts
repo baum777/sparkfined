@@ -8,8 +8,10 @@
 
 import { promises as fs } from 'fs'
 import path from 'path'
-import { ACCESS_CONFIG, SERVER_CONFIG } from '../../config/access'
+import { ACCESS_CONFIG } from '../../config/access'
 import type { RankStorage, AccessError } from '../../types/access'
+
+// SERVER_CONFIG reserved for future Streamflow API integration
 
 const RANK_FILE_PATH = path.join(process.cwd(), ACCESS_CONFIG.RANK_STORAGE_PATH)
 
@@ -68,7 +70,7 @@ async function getNextRank(): Promise<number> {
 export async function registerLock({
   wallet,
   amount,
-  txSignature,
+  txSignature: _txSignature,
 }: {
   wallet: string
   amount: number
@@ -77,6 +79,7 @@ export async function registerLock({
   rank: number
   lockId: string
 }> {
+  // txSignature reserved for future Streamflow verification
   const storage = await loadRankStorage()
   
   // Check if wallet already locked
@@ -157,10 +160,10 @@ export async function getAllLocks(): Promise<RankStorage['locks']> {
  */
 export async function verifyStreamflowTransaction(
   signature: string,
-  expectedAmount: number
+  _expectedAmount: number
 ): Promise<boolean> {
   // MVP: Just check signature exists
-  // TODO: Implement actual Streamflow API verification
+  // TODO: Implement actual Streamflow API verification (will use expectedAmount)
   if (!signature || signature.length < 64) {
     return false
   }

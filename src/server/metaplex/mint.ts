@@ -3,11 +3,11 @@
  * Server-side only
  */
 
+// @ts-expect-error - @metaplex-foundation/js has incomplete type definitions
 import { Metaplex, keypairIdentity, bundlrStorage } from '@metaplex-foundation/js'
 import { PublicKey } from '@solana/web3.js'
 import { getConnection, getServerKeypair } from '../solana/connection'
 import { ACCESS_CONFIG, getOGPassMetadataURI } from '../../config/access'
-import type { AccessError } from '../../types/access'
 
 let _metaplex: Metaplex | null = null
 
@@ -90,7 +90,7 @@ export async function checkOGPassOwnership(wallet: string): Promise<{
     
     // Filter for OG Pass NFTs (by symbol)
     const ogPassNFTs = nfts.filter(
-      (nft) => nft.symbol === ACCESS_CONFIG.OG_SYMBOL
+      (nft: { symbol: string }) => nft.symbol === ACCESS_CONFIG.OG_SYMBOL
     )
     
     if (ogPassNFTs.length === 0) {

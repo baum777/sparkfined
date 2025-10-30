@@ -3,22 +3,9 @@
  * Tests for ResultCard component rendering and accessibility
  */
 
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import type { TeaserResult } from '@/types/teaser';
+import { describe, it } from 'vitest';
 
 describe('ResultCard Component', () => {
-  const mockTeaserData: TeaserResult = {
-    sr_levels: [
-      { label: 'S1', price: 1.01 },
-      { label: 'R1', price: 1.05 },
-    ],
-    stop_loss: 0.95,
-    tp: [1.05, 1.10],
-    indicators: ['RSI:70', 'MACD:bullish'],
-    teaser_text: 'Bullish momentum',
-  };
-
   it.skip('renders key levels', () => {
     // TODO: Uncomment when ResultCard is updated
     // render(<ResultCard data={mockTeaserData} />);

@@ -3,7 +3,7 @@
  * Tests for journal CRUD operations
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 
 describe('Journal Service', () => {
   it.skip('saves entry within 60ms budget', async () => {

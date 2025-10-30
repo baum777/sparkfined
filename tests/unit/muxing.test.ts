@@ -3,7 +3,7 @@
  * Tests for provider fallback logic
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 
 describe('Provider Muxing', () => {
   it.skip('uses primary provider when available', async () => {

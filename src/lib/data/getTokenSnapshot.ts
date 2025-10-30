@@ -3,7 +3,7 @@
  * Token snapshot retrieval with provider fallback
  */
 
-import type { TokenSnapshot, TokenSnapshotWithMeta } from '@/types/data';
+import type { TokenSnapshotWithMeta } from '@/types/data';
 import { pickProvider } from '@/lib/config/flags';
 
 /**
@@ -20,7 +20,8 @@ import { pickProvider } from '@/lib/config/flags';
 export async function getTokenSnapshot(
   address: string
 ): Promise<TokenSnapshotWithMeta> {
-  const _config = pickProvider(); // TODO: Use in Issue 4 implementation
+  const config = pickProvider();
+  void config; // TODO: Use in Issue 4 implementation
   void address; // TODO: Use in Issue 4 implementation
 
   // TODO: Implement provider muxing

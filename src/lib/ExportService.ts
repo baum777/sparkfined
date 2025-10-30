@@ -23,7 +23,7 @@ export interface ExportOptions {
  * - Use JSZip or similar library
  */
 export async function createExportBundle(
-  options: ExportOptions
+  _options: ExportOptions
 ): Promise<Blob> {
   // TODO: Implement ZIP bundling
   throw new Error('Not implemented - Issue 11');
@@ -33,7 +33,7 @@ export async function createExportBundle(
  * Generate PNG share card for a journal entry
  * Dimensions: 1200x630 (Open Graph standard)
  */
-export async function generateShareCard(entry: JournalEntry): Promise<Blob> {
+export async function generateShareCard(_entry: JournalEntry): Promise<Blob> {
   // TODO: Implement share card generation
   // Use canvas API or similar
   throw new Error('Not implemented - Issue 11');
@@ -43,7 +43,7 @@ export async function generateShareCard(entry: JournalEntry): Promise<Blob> {
  * Validate and optimize image size
  * Max dimensions: 2048x2048
  */
-export async function optimizeImage(blob: Blob): Promise<Blob> {
+export async function optimizeImage(_blob: Blob): Promise<Blob> {
   // TODO: Implement image optimization
   throw new Error('Not implemented - Issue 11');
 }

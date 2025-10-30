@@ -3,7 +3,7 @@
  * Tests for Moralis adapter implementation
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 
 describe('Moralis adapter', () => {
   it.skip('maps moralis snapshot to TokenSnapshot', () => {

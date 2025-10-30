@@ -3,33 +3,36 @@
  * Tests for OCR parsing and label extraction
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect as _expect } from 'vitest';
 
 describe('OCR Service', () => {
   it.skip('extracts at least one label from sample image', async () => {
     // TODO: Load sample image
-    // const res = await parseOcr(samplePng);
-    // expect(res.labels.length).toBeGreaterThan(0);
-    // expect(res.confidence).toBeGreaterThan(0);
+    // const text = await performOCR(sampleImage);
+    // expect(text).toContain('Support');
   });
 
-  it.skip('completes within performance budget (p95 <= 1.2s)', async () => {
-    // TODO: Performance test with multiple samples
+  it.skip('extracts numeric SR values', async () => {
+    // TODO: Test numeric extraction
   });
 
-  it.skip('extracts RSI values correctly', async () => {
-    // TODO: Test RSI pattern matching
+  it.skip('handles upside-down/rotated images', async () => {
+    // TODO: Test rotation handling
   });
 
-  it.skip('extracts price levels correctly', async () => {
-    // TODO: Test price pattern matching
-  });
-
-  it.skip('extracts moving averages (EMA/SMA)', async () => {
-    // TODO: Test MA pattern matching
-  });
-
-  it.skip('handles OCR errors gracefully', async () => {
+  it.skip('rejects invalid images gracefully', async () => {
     // TODO: Test error handling
+  });
+
+  it.skip('meets 3-second p95 latency budget', async () => {
+    // TODO: Test performance
+  });
+
+  it.skip('matches "Support" and "Resistance" labels case-insensitive', async () => {
+    // TODO: Test label matching
+  });
+
+  it.skip('extracts numerical values with confidence >80%', async () => {
+    // TODO: Test confidence scoring
   });
 });

@@ -5,8 +5,11 @@
  * NOTE: These tests require mock service worker (msw) or similar
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect as _expect } from 'vitest';
 import { fetchWithTimeout } from '@/lib/net/withTimeout';
+
+// Redefine for active tests only
+const expect = _expect;
 
 describe('API Proxy Integration', () => {
   it.skip('proxies DexPaprika requests', async () => {
@@ -26,7 +29,8 @@ describe('API Proxy Integration', () => {
   });
 
   it('handles timeout correctly', async () => {
-    const slowPromise = new Promise(resolve => setTimeout(resolve, 2000));
+    // Timeout test (not awaiting slow promise, just demonstrating timeout logic)
+    void new Promise(resolve => setTimeout(resolve, 2000));
 
     await expect(
       fetchWithTimeout('http://example.com', {}, 100, 0)

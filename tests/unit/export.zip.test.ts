@@ -3,7 +3,7 @@
  * Tests for ZIP export functionality
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 
 describe('Export Service', () => {
   it.skip('creates ZIP bundle within 800ms budget', async () => {
