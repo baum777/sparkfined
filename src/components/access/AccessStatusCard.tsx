@@ -7,18 +7,21 @@
  * - None: No access
  */
 
-export default function AccessStatusCard() {
-  // TODO: Replace with real data from useAccessStatus hook (Issue #5)
-  const mockStatus = {
-    type: 'none' as 'og' | 'holder' | 'none',
-    walletConnected: false,
-    hasNFT: false,
-    holdBalance: 0,
-    lockRank: null as number | null,
-    loading: false,
-  }
+import { useAccessStatus } from '../../store/AccessProvider'
 
-  const { type, walletConnected, hasNFT, holdBalance, lockRank, loading } = mockStatus
+export default function AccessStatusCard() {
+  const {
+    status,
+    details,
+    loading,
+    walletConnected,
+    connectWallet,
+  } = useAccessStatus()
+
+  const type = status
+  const hasNFT = details?.hasNFT || false
+  const holdBalance = details?.tokenBalance || 0
+  const lockRank = details?.rank
 
   if (loading) {
     return (
@@ -40,7 +43,10 @@ export default function AccessStatusCard() {
           <p className="text-slate-400 mb-6">
             Connect your Solana wallet to check your access status
           </p>
-          <button className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors">
+          <button
+            onClick={connectWallet}
+            className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors"
+          >
             Connect Wallet
           </button>
         </div>
