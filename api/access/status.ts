@@ -61,7 +61,7 @@ export default async function handler(
 
     return res.status(200).json(response)
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[API /status] Error:', error)
 
     // Fallback on RPC error

@@ -76,13 +76,14 @@ export default async function handler(
 
     return res.status(200).json(response)
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[API /mint-nft] Error:', error)
 
+    const err = error as { message?: string }
     return res.status(500).json({ 
       ok: false, 
       error: 'Failed to mint NFT',
-      message: error.message,
+      message: err.message || 'Unknown error',
     })
   }
 }

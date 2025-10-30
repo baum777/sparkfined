@@ -67,22 +67,23 @@ export default async function handler(
 
     return res.status(200).json(response)
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[API /lock] Error:', error)
 
     // Handle known errors
-    if (error.code === 'DUPLICATE_LOCK') {
+    const err = error as { code?: string; details?: unknown; message?: string }
+    if (err.code === 'DUPLICATE_LOCK') {
       return res.status(409).json({ 
         ok: false, 
         error: 'Wallet already has a lock',
-        details: error.details,
+        details: err.details,
       })
     }
 
     return res.status(500).json({ 
       ok: false, 
       error: 'Internal server error',
-      message: error.message,
+      message: err.message || 'Unknown error',
     })
   }
 }
