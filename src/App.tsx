@@ -4,6 +4,7 @@ import UpdateBanner from './components/UpdateBanner'
 import AnalyzePage from './pages/AnalyzePage'
 import JournalPage from './pages/JournalPage'
 import ReplayPage from './pages/ReplayPage'
+import AccessPage from './pages/AccessPage'
 import './styles/App.css'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<AnalyzePage />} />
           <Route path="/journal" element={<JournalPage />} />
           <Route path="/replay" element={<ReplayPage />} />
+          <Route path="/access" element={<AccessPage />} />
         </Routes>
       </Layout>
     </Router>
