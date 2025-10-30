@@ -12,7 +12,10 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "verify:api": "node scripts/verify_api.mjs",
+    "verify:e2e": "playwright test tests/e2e/deploy.spec.ts --project=chromium",
+    "verify:lh": "lhci autorun --collect.url=$VERIFY_BASE_URL --upload.target=filesystem"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
