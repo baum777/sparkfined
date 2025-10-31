@@ -183,6 +183,7 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
  * 
  * Access the global access status from any component
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAccessStatus(): AccessContextValue {
   const context = useContext(AccessContext)
   

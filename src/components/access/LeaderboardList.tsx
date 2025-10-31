@@ -33,7 +33,7 @@ export default function LeaderboardList() {
       }))
       
       setEntries(mockEntries)
-    } catch (err) {
+    } catch {
       setError('Failed to load leaderboard')
     } finally {
       setLoading(false)
