@@ -20,7 +20,7 @@ export default function LockCalculator() {
       // Mock: await fetch('/api/mcap')
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setMcap(3500) // Fallback value: $3.5M
-    } catch (err) {
+    } catch {
       setError('Failed to fetch MCAP. Using fallback value.')
       setMcap(3500)
     } finally {

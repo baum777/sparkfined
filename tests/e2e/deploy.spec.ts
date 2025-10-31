@@ -17,9 +17,13 @@ test.describe("Sparkfined Deploy Smoke", () => {
 
     // Service worker ready (heuristic)
     await page.addInitScript(() => {
-      (window as any).__swReady = navigator.serviceWorker?.ready || Promise.resolve(null);
+      // @ts-expect-error - Adding test helper to window
+      window.__swReady = navigator.serviceWorker?.ready || Promise.resolve(null);
     });
-    const swReady = await page.evaluate(async () => !!(await (window as any).__swReady));
+    const swReady = await page.evaluate(async () => {
+      // @ts-expect-error - Accessing test helper
+      return !!(await window.__swReady)
+    });
     expect(swReady).toBeTruthy();
   });
 

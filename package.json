@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "pnpm typecheck && vite build",
@@ -13,6 +17,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
     "verify:api": "node scripts/verify_api.mjs",
     "verify:e2e": "playwright test tests/e2e/deploy.spec.ts --project=chromium",
     "verify:lh": "lhci autorun --collect.url=$VERIFY_BASE_URL --upload.target=filesystem"

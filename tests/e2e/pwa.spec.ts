@@ -66,7 +66,8 @@ test.describe('PWA Smoke Tests', () => {
     
     // Check if WCO is available
     const hasWCO = await page.evaluate(() => {
-      return Boolean((navigator as any).windowControlsOverlay)
+      // @ts-expect-error - windowControlsOverlay is experimental
+      return Boolean(navigator.windowControlsOverlay)
     })
     
     if (hasWCO) {

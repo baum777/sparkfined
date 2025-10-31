@@ -57,6 +57,7 @@ export default function JournalPage() {
 
   useEffect(() => {
     applyFilters()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trades, searchQuery, filterStatus, sortBy])
 
   const handleDeleteTrade = async (id: number) => {
